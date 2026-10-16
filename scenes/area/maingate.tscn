@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://bj44m8ipvlc72"]
+
+[ext_resource type="Script" uid="uid://cpkmsgtlw66sl" path="res://scripts/area/maingate.gd" id="1_seem6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8vrlf"]
+size = Vector3(1, 1.4570313, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mbipi"]
+size = Vector3(1, 1.4570313, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1vivr"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v8ti6"]
+albedo_color = Color(0.002136234, 0.002136234, 0.0021362337, 1)
+
+[node name="MainGate" type="Node3D" unique_id=344031724]
+script = ExtResource("1_seem6")
+
+[node name="GateArea" type="Area3D" parent="." unique_id=1113247448]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GateArea" unique_id=789339561]
+transform = Transform3D(13.526382, 0, 0, 0, 8.696775, 0, 0, 0, 1, 0, 5.255606, 0)
+shape = SubResource("BoxShape3D_8vrlf")
+
+[node name="TriggerArea" type="Area3D" parent="." unique_id=863149875]
+transform = Transform3D(1, 0, 0, 0, 0.15414758, 0, 0, 0, 1, 0, 0, 16.990463)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TriggerArea" unique_id=848363116]
+transform = Transform3D(30.178713, 0, 0, 0, 8.696775, 0, 0, 0, 30.603598, 0, 5.255606, 3.7217903)
+shape = SubResource("BoxShape3D_mbipi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=637960830]
+transform = Transform3D(1, 0, 0, 0, 10, 0, 0, 0, 1, -6, 5, 0)
+mesh = SubResource("BoxMesh_1vivr")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1229807018]
+transform = Transform3D(1, 0, 0, 0, 10, 0, 0, 0, 1, 6, 5, 0)
+mesh = SubResource("BoxMesh_1vivr")
+
+[node name="GateMesh" type="MeshInstance3D" parent="." unique_id=875946625]
+transform = Transform3D(10.771554, 0, 0, 0, 8.967374, 0, 0, 0, 1, 0, 5, 0)
+mesh = SubResource("BoxMesh_1vivr")
+surface_material_override/0 = SubResource("StandardMaterial3D_v8ti6")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=1724010927]
+transform = Transform3D(15, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
+mesh = SubResource("BoxMesh_1vivr")
+
+[connection signal="body_entered" from="TriggerArea" to="." method="_on_trigger_area_body_entered"]
