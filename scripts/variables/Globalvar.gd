@@ -6,6 +6,7 @@ var current_rank="D"
 var current_renown: int=0
 var current_points: int=0
 
+var player_name="Player"
 
 
 
@@ -13,7 +14,8 @@ func _ready():
 	var root = get_tree().root
 	# Using a negative index counts from the end, so this gets the last child node of `root`.
 	current_scene = root.get_child(-1)
-	print(current_scene)
+	print(player_name)
+	print(current_scene )
 
 
 

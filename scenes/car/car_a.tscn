@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://dj6x755db5wfn"]
+
+[ext_resource type="Script" uid="uid://dv7w1nk7yyxhi" path="res://scripts/car/car_a.gd" id="1_74rp1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1vivr"]
+size = Vector3(3.8587646, 2.4794922, 4.1796265)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8vrlf"]
+size = Vector3(5.8231506, 2.7082214, 3.9824219)
+
+[sub_resource type="SphereMesh" id="SphereMesh_74rp1"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_mcqbb"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_8wdp8"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_iga74"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1vivr"]
+size = Vector3(4.6937866, 2.2477417, 3.4291992)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2wixh"]
+albedo_color = Color(0.99050313, 0.08501565, 0, 1)
+
+[node name="Car_A" type="VehicleBody3D" unique_id=1639746544]
+script = ExtResource("1_74rp1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=486573897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16900635, 0.7397461, 0.08779907)
+shape = SubResource("BoxShape3D_1vivr")
+
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1017037383]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=1995084886]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12791443, 0.7160797, 0.040039063)
+shape = SubResource("BoxShape3D_8vrlf")
+
+[node name="RearLeft" type="VehicleWheel3D" parent="." unique_id=1787592558]
+transform = Transform3D(0.999826, 0, 0.018652631, 0, 1, 0, -0.018652631, 0, 0.999826, -1.8802162, -0.36453366, -1.1648546)
+use_as_traction = true
+wheel_radius = 2.0
+wheel_friction_slip = 1.0
+suspension_stiffness = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RearLeft" unique_id=1906328992]
+mesh = SubResource("SphereMesh_74rp1")
+
+[node name="RearRight" type="VehicleWheel3D" parent="." unique_id=2112821869]
+transform = Transform3D(0.999826, 0, 0.018652631, 0, 1, 0, -0.018652631, 0, 0.999826, -1.8159246, -0.36453366, 2.2813253)
+use_as_traction = true
+wheel_radius = 2.0
+wheel_friction_slip = 1.0
+suspension_stiffness = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RearRight" unique_id=146585100]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0)
+mesh = SubResource("SphereMesh_mcqbb")
+
+[node name="FrontLeft" type="VehicleWheel3D" parent="." unique_id=1750126823]
+transform = Transform3D(0.999826, 0, 0.018652631, 0, 1, 0, -0.018652631, 0, 0.999826, 1.7444998, -0.36453366, -1.2324768)
+use_as_steering = true
+wheel_radius = 2.0
+wheel_friction_slip = 1.0
+suspension_stiffness = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FrontLeft" unique_id=150057629]
+mesh = SubResource("SphereMesh_8wdp8")
+
+[node name="FrontRight" type="VehicleWheel3D" parent="." unique_id=455241924]
+transform = Transform3D(0.999826, 0, 0.018652631, 0, 1, 0, -0.018652631, 0, 0.999826, 1.7946819, -0.36453366, 1.457405)
+use_as_steering = true
+wheel_radius = 2.0
+wheel_friction_slip = 1.0
+suspension_stiffness = 25.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FrontRight" unique_id=1819822415]
+mesh = SubResource("SphereMesh_iga74")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1060465782]
+transform = Transform3D(0.03256182, 0, 0.9994697, 0, 1, 0, -0.9994697, 0, 0.03256182, -0.2190857, 0.62387085, 0.13208008)
+mesh = SubResource("BoxMesh_1vivr")
+surface_material_override/0 = SubResource("StandardMaterial3D_2wixh")
+
+[node name="SeatPosition" type="Marker3D" parent="." unique_id=1529911332]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7018025, 0)

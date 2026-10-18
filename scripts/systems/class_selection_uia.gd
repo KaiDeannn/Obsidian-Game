@@ -16,7 +16,6 @@ func _ready() -> void:
 	sniper.hide()
 	assault.hide()
 	engineer.hide()
-	
 func _on_swordsman_b_pressed() -> void:
 	picked_class= "swordsman"
 	descriptiontext.text="naturally favour the Central Plaza — an open, flat area perfect for close-quarters duels.

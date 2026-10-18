@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://br4bo1m4lv3of"]
+
+[ext_resource type="Script" uid="uid://d1c1sgl46abi6" path="res://scripts/systems/login_auth.gd" id="1_q62hx"]
+
+[node name="LoginAuth" type="Control" unique_id=1248363777]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q62hx")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1870249014]
+
+[node name="Username_EDIT" type="TextEdit" parent="CanvasLayer" unique_id=1752446809]
+offset_left = 129.0
+offset_top = 52.0
+offset_right = 329.0
+offset_bottom = 102.0
+placeholder_text = "Email"
+
+[node name="Password_EDIT" type="TextEdit" parent="CanvasLayer" unique_id=1180997675]
+offset_left = 129.0
+offset_top = 119.0
+offset_right = 329.0
+offset_bottom = 169.0
+placeholder_text = "Password"
+
+[node name="PlayerName_EDIT" type="TextEdit" parent="CanvasLayer" unique_id=1663190354]
+offset_left = 420.0
+offset_top = 59.0
+offset_right = 620.0
+offset_bottom = 109.0
+placeholder_text = "Password"
+
+[node name="SignIn_B" type="Button" parent="CanvasLayer" unique_id=829292574]
+offset_left = 145.0
+offset_top = 214.0
+offset_right = 245.0
+offset_bottom = 264.0
+text = "SIGN IN"
+
+[node name="LogIn_B" type="Button" parent="CanvasLayer" unique_id=432402835]
+offset_left = 299.0
+offset_top = 215.0
+offset_right = 399.0
+offset_bottom = 265.0
+text = "LOG IN"
+
+[connection signal="pressed" from="CanvasLayer/SignIn_B" to="." method="_on_sign_in_b_pressed"]
+[connection signal="pressed" from="CanvasLayer/LogIn_B" to="." method="_on_log_in_b_pressed"]
