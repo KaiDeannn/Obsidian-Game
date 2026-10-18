@@ -6,10 +6,12 @@
 [ext_resource type="PackedScene" uid="uid://m571suxttbax" path="res://scenes/ui/game_ui.tscn" id="5_mpil3"]
 [ext_resource type="PackedScene" uid="uid://brf3uunlwt4by" path="res://scenes/ui/uix.tscn" id="6_mo4hm"]
 [ext_resource type="PackedScene" uid="uid://bqjaby4wdixqf" path="res://Models/Room.glb" id="7_bed5j"]
+[ext_resource type="PackedScene" uid="uid://bru07fd40ig0g" path="res://scenes/player.tscn" id="7_kr7s4"]
 
 [node name="Nova_Aetheris" type="Node3D" unique_id=970347408]
 
 [node name="ClassSelection_UIA" parent="." unique_id=1316626057 instance=ExtResource("2_nlow5")]
+mouse_filter = 2
 
 [node name="Gate" parent="." unique_id=344031724 instance=ExtResource("3_mpil3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -17.7255)
@@ -18,13 +20,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -17.7255)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.551193, 1.2932377, -12.841473)
 
 [node name="GameUI" parent="." unique_id=670418506 instance=ExtResource("5_mpil3")]
+mouse_filter = 2
 
 [node name="UIX" parent="." unique_id=712181157 instance=ExtResource("6_mo4hm")]
+visible = false
+mouse_filter = 2
 
 [node name="Room" parent="." unique_id=1568612065 instance=ExtResource("7_bed5j")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, -4.552474, 0.5, 6.781437)
 
-[node name="Cube_0060" parent="Room" index="6" unique_id=1012233604]
+[node name="Cube_0060" parent="Room" index="6" unique_id=187219482]
 visible = false
+
+[node name="Player" parent="." unique_id=1760609424 groups=["players"] instance=ExtResource("7_kr7s4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42500305, 2.6731734, 15.683028)
 
 [editable path="Room"]
