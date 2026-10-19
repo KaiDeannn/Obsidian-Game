@@ -13,6 +13,8 @@ enum Moving_State{WALKING, RUNNING, JUMPING}
 @onready var mesh: MeshInstance3D = $"Main character/Mesh"
 @onready var collision: CollisionShape3D = $"Main character/Collision"
 
+
+@onready var cinematic_manager = $"../CinematicManager"
 #-----CameraVariables:-----
 @export_category("Camera Variables")
 var camera_pitch: float = 0.0
@@ -42,6 +44,7 @@ var _can_follow_camera:bool = true
 var current_state = Moving_State.WALKING
 
 func _ready() -> void:
+	#-----------------------------
 	camera_pitch = camera_pivot.rotation.x
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 

@@ -7,14 +7,21 @@
 [ext_resource type="PackedScene" uid="uid://brf3uunlwt4by" path="res://scenes/ui/uix.tscn" id="6_mo4hm"]
 [ext_resource type="PackedScene" uid="uid://bqjaby4wdixqf" path="res://Models/Room.glb" id="7_bed5j"]
 [ext_resource type="PackedScene" uid="uid://bru07fd40ig0g" path="res://scenes/player.tscn" id="7_kr7s4"]
+[ext_resource type="Script" uid="uid://b7jjrglbpj3j1" path="res://scripts/cinematics/CinematicManager.gd" id="8_kr7s4"]
+
+[sub_resource type="Environment" id="Environment_1vivr"]
+background_energy_multiplier = 11.46
+glow_enabled = true
+glow_intensity = 0.63
+glow_bloom = 0.74
 
 [node name="Nova_Aetheris" type="Node3D" unique_id=970347408]
 
 [node name="ClassSelection_UIA" parent="." unique_id=1316626057 instance=ExtResource("2_nlow5")]
-mouse_filter = 2
 
-[node name="Gate" parent="." unique_id=344031724 instance=ExtResource("3_mpil3")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -17.7255)
+[node name="Gate" parent="." unique_id=344031724 node_paths=PackedStringArray("player") instance=ExtResource("3_mpil3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.94299936, -12.650535)
+player = NodePath("../Player")
 
 [node name="Car_A" parent="." unique_id=1112062514 instance=ExtResource("4_nlow5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.551193, 1.2932377, -12.841473)
@@ -29,10 +36,34 @@ mouse_filter = 2
 [node name="Room" parent="." unique_id=1568612065 instance=ExtResource("7_bed5j")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, -4.552474, 0.5, 6.781437)
 
-[node name="Cube_0060" parent="Room" index="6" unique_id=187219482]
+[node name="Cube_0060" parent="Room" index="6" unique_id=1540001547]
 visible = false
 
 [node name="Player" parent="." unique_id=1760609424 groups=["players"] instance=ExtResource("7_kr7s4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42500305, 2.6731734, 15.683028)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1183033533]
+environment = SubResource("Environment_1vivr")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=839973687]
+transform = Transform3D(0.13498127, 0.92938495, 0.34354603, 0.09454858, -0.35721815, 0.92922324, 0.98632693, -0.092945874, -0.13608965, 0, 3.4314728, 12.643368)
+light_energy = 1.55
+
+[node name="CinematicManager" type="Node3D" parent="." unique_id=48096924 node_paths=PackedStringArray("cinematic_camera")]
+script = ExtResource("8_kr7s4")
+cinematic_camera = NodePath("CinematicCamera")
+
+[node name="CinematicCamera" type="Camera3D" parent="CinematicManager" unique_id=515079129]
+
+[node name="CameraPositions" type="Node3D" parent="." unique_id=697025723]
+
+[node name="ClearTheGate" type="Marker3D" parent="CameraPositions" unique_id=13648644]
+transform = Transform3D(1, 0, 0, 0, 0.96262634, 0.27083313, 0, -0.27083313, 0.96262634, 0, 7.6651525, -1.5375772)
+
+[node name="EnterTheGate" type="Marker3D" parent="CameraPositions" unique_id=349563056]
+transform = Transform3D(-0.59091586, 0, 0.80673313, 0, 1, 0, -0.8067331, 0, -0.5909159, 8.624979, 2.9552026, -15.583882)
+
+[node name="Camera3D" type="Camera3D" parent="CameraPositions/EnterTheGate" unique_id=48381936]
+transform = Transform3D(0.9649093, 0, 0.26258403, 0, 1, 0, -0.26258403, 0, 0.96490914, 0, 0, 0)
 
 [editable path="Room"]

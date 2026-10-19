@@ -19,11 +19,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_7wwsq")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=467599172]
-
-[node name="Select_Control" type="Control" parent="CanvasLayer" unique_id=1125582395]
+[node name="Select_Control" type="Control" parent="." unique_id=1125582395]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -35,7 +33,7 @@ offset_right = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Select_B" type="Button" parent="CanvasLayer/Select_Control" unique_id=472042262]
+[node name="Select_B" type="Button" parent="Select_Control" unique_id=472042262]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -50,9 +48,9 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "SELECT"
 
-[node name="Swordsman_Control" type="Control" parent="CanvasLayer" unique_id=358710032]
+[node name="Swordsman_Control" type="Control" parent="." unique_id=358710032]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -62,14 +60,14 @@ offset_right = -436.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Swordsman_Control" unique_id=497170296]
+[node name="Icon" type="TextureRect" parent="Swordsman_Control" unique_id=497170296]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("2_j0vak")
 
-[node name="title" type="Label" parent="CanvasLayer/Swordsman_Control" unique_id=2060280767]
+[node name="title" type="Label" parent="Swordsman_Control" unique_id=2060280767]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -80,20 +78,20 @@ text = "SWORDSMAN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Swordsman_B" type="Button" parent="CanvasLayer/Swordsman_Control" unique_id=888916879]
+[node name="Swordsman_B" type="Button" parent="Swordsman_Control" unique_id=888916879]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="description" type="Label" parent="CanvasLayer/Swordsman_Control" unique_id=1442124077]
+[node name="description" type="Label" parent="Swordsman_Control" unique_id=1442124077]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Ninja_Control" type="Control" parent="CanvasLayer" unique_id=243313616]
+[node name="Ninja_Control" type="Control" parent="." unique_id=243313616]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -103,25 +101,25 @@ offset_right = -286.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Ninja_Control" unique_id=1577236136]
+[node name="Icon" type="TextureRect" parent="Ninja_Control" unique_id=1577236136]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("3_603qv")
 
-[node name="description" type="Label" parent="CanvasLayer/Ninja_Control" unique_id=33110576]
+[node name="description" type="Label" parent="Ninja_Control" unique_id=33110576]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Ninja_B" type="Button" parent="CanvasLayer/Ninja_Control" unique_id=474945309]
+[node name="Ninja_B" type="Button" parent="Ninja_Control" unique_id=474945309]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="CanvasLayer/Ninja_Control" unique_id=1284638409]
+[node name="title" type="Label" parent="Ninja_Control" unique_id=1284638409]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -132,9 +130,9 @@ text = "NINJA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Archer_Control" type="Control" parent="CanvasLayer" unique_id=387202338]
+[node name="Archer_Control" type="Control" parent="." unique_id=387202338]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -144,25 +142,25 @@ offset_right = -136.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Archer_Control" unique_id=472574244]
+[node name="Icon" type="TextureRect" parent="Archer_Control" unique_id=472574244]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("4_vptlh")
 
-[node name="description" type="Label" parent="CanvasLayer/Archer_Control" unique_id=796879801]
+[node name="description" type="Label" parent="Archer_Control" unique_id=796879801]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Archer_B" type="Button" parent="CanvasLayer/Archer_Control" unique_id=1989741662]
+[node name="Archer_B" type="Button" parent="Archer_Control" unique_id=1989741662]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="CanvasLayer/Archer_Control" unique_id=650492867]
+[node name="title" type="Label" parent="Archer_Control" unique_id=650492867]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -173,9 +171,9 @@ text = "ARCHER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Sniper_Control" type="Control" parent="CanvasLayer" unique_id=2003596690]
+[node name="Sniper_Control" type="Control" parent="." unique_id=2003596690]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -185,25 +183,25 @@ offset_right = 14.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Sniper_Control" unique_id=593922087]
+[node name="Icon" type="TextureRect" parent="Sniper_Control" unique_id=593922087]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("5_taw11")
 
-[node name="description" type="Label" parent="CanvasLayer/Sniper_Control" unique_id=1352795325]
+[node name="description" type="Label" parent="Sniper_Control" unique_id=1352795325]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Sniper_B" type="Button" parent="CanvasLayer/Sniper_Control" unique_id=1447262830]
+[node name="Sniper_B" type="Button" parent="Sniper_Control" unique_id=1447262830]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="CanvasLayer/Sniper_Control" unique_id=1915976808]
+[node name="title" type="Label" parent="Sniper_Control" unique_id=1915976808]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -214,9 +212,9 @@ text = "SNIPER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Assault_Control" type="Control" parent="CanvasLayer" unique_id=213673835]
+[node name="Assault_Control" type="Control" parent="." unique_id=213673835]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -226,25 +224,25 @@ offset_right = 164.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Assault_Control" unique_id=1773437040]
+[node name="Icon" type="TextureRect" parent="Assault_Control" unique_id=1773437040]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("6_wsih1")
 
-[node name="description" type="Label" parent="CanvasLayer/Assault_Control" unique_id=1537429049]
+[node name="description" type="Label" parent="Assault_Control" unique_id=1537429049]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Assault_B" type="Button" parent="CanvasLayer/Assault_Control" unique_id=100163706]
+[node name="Assault_B" type="Button" parent="Assault_Control" unique_id=100163706]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="CanvasLayer/Assault_Control" unique_id=1249749569]
+[node name="title" type="Label" parent="Assault_Control" unique_id=1249749569]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -255,9 +253,9 @@ text = "ASSAULT"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Engineer_Control" type="Control" parent="CanvasLayer" unique_id=1987066381]
+[node name="Engineer_Control" type="Control" parent="." unique_id=1987066381]
 visibility_layer = 16
-layout_mode = 3
+layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -267,25 +265,25 @@ offset_right = 314.0
 offset_bottom = 140.0
 grow_horizontal = 2
 
-[node name="Icon" type="TextureRect" parent="CanvasLayer/Engineer_Control" unique_id=645011604]
+[node name="Icon" type="TextureRect" parent="Engineer_Control" unique_id=645011604]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("7_dyhmh")
 
-[node name="description" type="Label" parent="CanvasLayer/Engineer_Control" unique_id=765974615]
+[node name="description" type="Label" parent="Engineer_Control" unique_id=765974615]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Engineer_B" type="Button" parent="CanvasLayer/Engineer_Control" unique_id=1326571573]
+[node name="Engineer_B" type="Button" parent="Engineer_Control" unique_id=1326571573]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="CanvasLayer/Engineer_Control" unique_id=645319837]
+[node name="title" type="Label" parent="Engineer_Control" unique_id=645319837]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -296,8 +294,9 @@ text = "ENGINEER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=973015743]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=973015743]
 z_index = -10
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -305,7 +304,20 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Description" type="Label" parent="CanvasLayer" unique_id=999942999]
+[node name="Label" type="Label" parent="." unique_id=1582089453]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -99.5
+offset_top = 25.0
+offset_right = 99.5
+offset_bottom = 48.0
+grow_horizontal = 2
+text = "CHOOSE YOU CLASS ROLE"
+
+[node name="Description" type="Label" parent="." unique_id=999942999]
+layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -322,22 +334,10 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="Label" type="Label" parent="." unique_id=1582089453]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -99.5
-offset_top = 25.0
-offset_right = 99.5
-offset_bottom = 48.0
-grow_horizontal = 2
-text = "CHOOSE YOU CLASS ROLE"
-
-[connection signal="pressed" from="CanvasLayer/Select_Control/Select_B" to="." method="_on_select_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Swordsman_Control/Swordsman_B" to="." method="_on_swordsman_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Ninja_Control/Ninja_B" to="." method="_on_ninja_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Archer_Control/Archer_B" to="." method="_on_archer_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Sniper_Control/Sniper_B" to="." method="_on_sniper_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Assault_Control/Assault_B" to="." method="_on_assault_b_pressed"]
-[connection signal="pressed" from="CanvasLayer/Engineer_Control/Engineer_B" to="." method="_on_engineer_b_pressed"]
+[connection signal="pressed" from="Select_Control/Select_B" to="." method="_on_select_b_pressed"]
+[connection signal="pressed" from="Swordsman_Control/Swordsman_B" to="." method="_on_swordsman_b_pressed"]
+[connection signal="pressed" from="Ninja_Control/Ninja_B" to="." method="_on_ninja_b_pressed"]
+[connection signal="pressed" from="Archer_Control/Archer_B" to="." method="_on_archer_b_pressed"]
+[connection signal="pressed" from="Sniper_Control/Sniper_B" to="." method="_on_sniper_b_pressed"]
+[connection signal="pressed" from="Assault_Control/Assault_B" to="." method="_on_assault_b_pressed"]
+[connection signal="pressed" from="Engineer_Control/Engineer_B" to="." method="_on_engineer_b_pressed"]

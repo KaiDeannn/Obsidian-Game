@@ -1,13 +1,13 @@
 extends Control
 
 var picked_class: String = ""
-@onready var descriptiontext=$"CanvasLayer/Description"
-@onready var swordsman=$CanvasLayer/Swordsman_Control/title
-@onready var ninja=$CanvasLayer/Ninja_Control/title
-@onready var archer=$CanvasLayer/Archer_Control/title
-@onready var sniper=$CanvasLayer/Sniper_Control/title
-@onready var assault=$CanvasLayer/Assault_Control/title
-@onready var engineer=$CanvasLayer/Engineer_Control/title
+@onready var descriptiontext=$"Description"
+@onready var swordsman=$Swordsman_Control/title
+@onready var ninja=$Ninja_Control/title
+@onready var archer=$Archer_Control/title
+@onready var sniper=$Sniper_Control/title
+@onready var assault=$Assault_Control/title
+@onready var engineer=$Engineer_Control/title
 
 func _ready() -> void:
 	swordsman.hide()

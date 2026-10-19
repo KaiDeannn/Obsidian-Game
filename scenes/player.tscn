@@ -15,7 +15,7 @@ albedo_color = Color(0.23610085, 0.57402885, 1, 1)
 [node name="Player" type="Node3D" unique_id=1760609424]
 script = ExtResource("1_g2els")
 
-[node name="Main character" type="CharacterBody3D" parent="." unique_id=579077710]
+[node name="Main character" type="CharacterBody3D" parent="." unique_id=579077710 groups=["players"]]
 script = ExtResource("2_2wixh")
 
 [node name="Mesh" type="MeshInstance3D" parent="Main character" unique_id=2133566745]
