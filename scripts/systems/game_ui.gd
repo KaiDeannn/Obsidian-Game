@@ -3,6 +3,11 @@ extends Control
 @onready var text_label: RichTextLabel = $CanvasLayer/RichTextLabel# Using the % Unique Name fix
 
 @export var typing_speed: float = 0.05
+@onready var message_label= $CanvasLayer/LocationTitle
+
+func _ready() -> void:
+	message_label.hide()
+	message_label.modulate.a = 0
 
 func play_typewriter_effect(text_to_type: String) -> void:
 	# 1. Use RegEx to split the string by sentence-ending punctuation safely
@@ -37,3 +42,26 @@ func play_typewriter_effect(text_to_type: String) -> void:
 			
 		# 4. Long dramatic pause at the end of the sentence before it vanishes
 		await get_tree().create_timer(1.2).timeout
+
+
+
+
+
+
+var tween: Tween
+func show_message(message: String, duration: float = 3.0) -> void:
+	if tween and tween.is_running():
+		tween.kill()
+	
+	
+	message_label.text = message
+	message_label.show()
+	message_label.modulate.a = 0
+	print("ASDASDASDas")
+	
+	
+	tween = create_tween()
+	tween.tween_property($CanvasLayer/LocationTitle, "modulate:a", 1.0, 0.5)
+	tween.tween_interval(duration)
+	tween.tween_property($CanvasLayer/LocationTitle, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(hide)

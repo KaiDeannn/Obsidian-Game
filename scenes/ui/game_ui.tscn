@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://m571suxttbax"]
 
 [ext_resource type="Script" uid="uid://bwv8mbdpq3usq" path="res://scripts/systems/game_ui.gd" id="1_gwk6t"]
+[ext_resource type="FontFile" uid="uid://b2r1fngrw78kb" path="res://Fonts/Rajdhani-SemiBold.ttf" id="2_xjfbv"]
 
 [node name="GameUI" type="Control" unique_id=670418506]
 layout_mode = 3
@@ -27,5 +28,20 @@ grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LocationTitle" type="Label" parent="CanvasLayer" unique_id=90004604]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -258.0
+offset_top = 28.0
+offset_right = 259.0
+offset_bottom = 51.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("2_xjfbv")
+theme_override_font_sizes/font_size = 40
+text = "NOVA AETHERIS"
 horizontal_alignment = 1
 vertical_alignment = 1
