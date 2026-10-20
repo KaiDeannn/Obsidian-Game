@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://dtrykxdwty6hq"]
+
+[ext_resource type="PackedScene" uid="uid://bru07fd40ig0g" path="res://scenes/player.tscn" id="1_q2uus"]
+[ext_resource type="Script" uid="uid://dpnpdbm8pjy3f" path="res://scripts/questnpc/quest_giver.gd" id="2_lt71a"]
+[ext_resource type="PackedScene" uid="uid://brf3uunlwt4by" path="res://scenes/ui/uix.tscn" id="3_e41dd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lt71a"]
+size = Vector3(0.6723633, 1, 96.147064)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1vivr"]
+size = Vector3(196.73654, 1, 189.70166)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8vrlf"]
+albedo_color = Color(0.5480628, 0.7664083, 7.70092e-07, 1)
+
+[sub_resource type="Environment" id="Environment_lt71a"]
+background_energy_multiplier = 2.36
+reflected_light_source = 2
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1vivr"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8vrlf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1vivr"]
+size = Vector3(6.725464, 1, 6.4522705)
+
+[node name="City" type="Node3D" unique_id=1856632297]
+
+[node name="Player" parent="." unique_id=1760609424 instance=ExtResource("1_q2uus")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.0948153, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=524113758]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=961419085]
+transform = Transform3D(300, 0, 0, 0, 2, 0, 0, 0, 2, -37.060326, 0, 35.752487)
+shape = SubResource("BoxShape3D_lt71a")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=805125038]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.356705, 0, 32.30542)
+mesh = SubResource("BoxMesh_1vivr")
+surface_material_override/0 = SubResource("StandardMaterial3D_8vrlf")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=422012195]
+environment = SubResource("Environment_lt71a")
+
+[node name="QuestGiver" type="StaticBody3D" parent="." unique_id=1688768974]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.368594, 1.4466624, 0)
+script = ExtResource("2_lt71a")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="QuestGiver" unique_id=928181431]
+mesh = SubResource("CapsuleMesh_1vivr")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="QuestGiver" unique_id=239988875]
+shape = SubResource("CapsuleShape3D_8vrlf")
+
+[node name="Label3D" type="Label3D" parent="QuestGiver" unique_id=70432927]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9366195, 0)
+billboard = 2
+text = "QUEST GIVER"
+
+[node name="Message" type="Label3D" parent="QuestGiver" unique_id=909414734]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.091849804, 1.6889501, 0.02278912)
+billboard = 2
+text = "(E) press to talk"
+autowrap_mode = 2
+
+[node name="Area3D" type="Area3D" parent="QuestGiver" unique_id=1534939068]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="QuestGiver/Area3D" unique_id=1666387393]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06304932, 0, 0.4151001)
+shape = SubResource("BoxShape3D_1vivr")
+
+[node name="UIX" parent="." unique_id=712181157 instance=ExtResource("3_e41dd")]
