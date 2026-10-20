@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://brf3uunlwt4by"]
 
+[ext_resource type="Script" uid="uid://djbej7eroc1ly" path="res://scripts/ui/uix.gd" id="1_nrx1b"]
 [ext_resource type="Script" uid="uid://dl5yw3y6rig21" path="res://camera_3d.gd" id="1_r6taw"]
 [ext_resource type="Shader" uid="uid://cgy7s2txj0st1" path="res://shaders/uix.gdshader" id="1_ycy7o"]
+[ext_resource type="FontFile" uid="uid://b2r1fngrw78kb" path="res://Fonts/Rajdhani-SemiBold.ttf" id="4_trob1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8vrlf"]
 bg_color = Color(0.16002938, 0.24766555, 0.53241956, 1)
@@ -60,10 +62,10 @@ border_width_top = 5
 border_width_right = 5
 border_width_bottom = 5
 border_color = Color(0.34919912, 0.4505875, 0.96402925, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v5gy4"]
 bg_color = Color(0.45452422, 0.45452428, 0.45452422, 1)
@@ -111,6 +113,18 @@ corner_radius_bottom_left = 100
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1vivr"]
 shader = ExtResource("1_ycy7o")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0sxyj"]
+bg_color = Color(0.02175072, 7.219613e-08, 0.36533943, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.012149351, 0, 0.24976191, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="UIX" type="Control" unique_id=712181157]
 layout_mode = 3
 anchors_preset = 15
@@ -118,8 +132,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_nrx1b")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=460258930]
+[node name="ProfilePanel" type="PanelContainer" parent="." unique_id=460258930]
 layout_mode = 0
 offset_left = 17.0
 offset_top = 22.0
@@ -127,37 +142,37 @@ offset_right = 322.0
 offset_bottom = 131.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_8vrlf")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer" unique_id=212910110]
+[node name="HBoxContainer" type="HBoxContainer" parent="ProfilePanel" unique_id=212910110]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/HBoxContainer" unique_id=1661216829]
+[node name="VBoxContainer" type="VBoxContainer" parent="ProfilePanel/HBoxContainer" unique_id=1661216829]
 layout_mode = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/HBoxContainer/VBoxContainer" unique_id=868905891]
+[node name="CenterContainer" type="CenterContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer" unique_id=868905891]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/HBoxContainer/VBoxContainer/CenterContainer" unique_id=1118243649]
+[node name="MarginContainer" type="MarginContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer/CenterContainer" unique_id=1118243649]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 
-[node name="Panel" type="Panel" parent="PanelContainer/HBoxContainer/VBoxContainer/CenterContainer/MarginContainer" unique_id=1291710622]
+[node name="Panel" type="Panel" parent="ProfilePanel/HBoxContainer/VBoxContainer/CenterContainer/MarginContainer" unique_id=1291710622]
 custom_minimum_size = Vector2(90, 95)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_o5tgd")
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="PanelContainer/HBoxContainer" unique_id=1515731540]
+[node name="VBoxContainer2" type="VBoxContainer" parent="ProfilePanel/HBoxContainer" unique_id=1515731540]
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/HBoxContainer/VBoxContainer2" unique_id=1087171998]
+[node name="MarginContainer" type="MarginContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer2" unique_id=1087171998]
 layout_mode = 2
 theme_override_constants/margin_top = 10
 
-[node name="GridContainer" type="GridContainer" parent="PanelContainer/HBoxContainer/VBoxContainer2/MarginContainer" unique_id=25962879]
+[node name="GridContainer" type="GridContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer" unique_id=25962879]
 layout_mode = 2
 
-[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=257974799]
+[node name="ProgressBar" type="ProgressBar" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=257974799]
 custom_minimum_size = Vector2(190, 25)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.28627452, 0.28627452, 0.28627452, 0.49411765)
@@ -165,15 +180,36 @@ theme_override_styles/background = SubResource("StyleBoxFlat_u7cuq")
 theme_override_styles/fill = SubResource("StyleBoxFlat_d2pp6")
 value = 50.0
 
-[node name="Label" type="Label" parent="PanelContainer/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=1598056879]
+[node name="Label" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=1598056879]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
 text = "Pisthantro"
 
-[node name="Label2" type="Label" parent="PanelContainer/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=87307463]
+[node name="Label2" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=87307463]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
 text = "Level: 100"
 
+[node name="HBoxContainer" type="HBoxContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=263826059]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=1203121764]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "renown: "
+
+[node name="Label2" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=106565712]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "points: 0"
+
 [node name="Inventory" type="PanelContainer" parent="." unique_id=102561687]
+visible = false
+z_index = 10
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -564,3 +600,77 @@ render_target_update_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="Minimap/MarginContainer/SubViewportContainer/SubViewport" unique_id=429106099]
 script = ExtResource("1_r6taw")
+
+[node name="QuestUI" type="PanelContainer" parent="." unique_id=1434746271]
+layout_mode = 1
+offset_left = 21.0
+offset_top = 138.0
+offset_right = 287.0
+offset_bottom = 275.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_0sxyj")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="QuestUI" unique_id=10746277]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="QuestUI/VBoxContainer" unique_id=1922809365]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 7
+
+[node name="Label" type="Label" parent="QuestUI/VBoxContainer/MarginContainer" unique_id=1282049271]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9388745, 0.9388743, 1.540184e-06, 1)
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "Active Quest"
+vertical_alignment = 1
+autowrap_mode = 2
+autowrap_trim_flags = 0
+
+[node name="Panel" type="Panel" parent="QuestUI/VBoxContainer" unique_id=451235578]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="QuestUI/VBoxContainer/Panel" unique_id=30463277]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 14.0
+offset_right = 257.0
+offset_bottom = 63.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "Deliver the package to the gatekeeper"
+vertical_alignment = 1
+autowrap_mode = 3
+autowrap_trim_flags = 0
+
+[node name="Panel3" type="Panel" parent="QuestUI/VBoxContainer" unique_id=290906396]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="QuestUI/VBoxContainer/Panel3" unique_id=1808293445]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 64.0
+offset_right = 254.0
+offset_bottom = 103.0
+theme_override_colors/font_color = Color(0.9439944, 0.8127366, 0.21576473, 1)
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Reward: 10 Renowns, 10 Points"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Panel2" type="Panel" parent="QuestUI/VBoxContainer" unique_id=400594464]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="QuestUI/VBoxContainer/Panel2" unique_id=1881089006]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 33.0
+offset_right = 254.0
+offset_bottom = 72.0
+theme_override_colors/font_color = Color(0.7828145, 0.80769426, 0.96134347, 1)
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Progress: 0 / 1 "
+vertical_alignment = 1
+autowrap_mode = 3
