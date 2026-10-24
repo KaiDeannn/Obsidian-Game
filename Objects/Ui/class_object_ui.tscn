@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cdv8ub5lg04r"]
+
+[ext_resource type="Script" uid="uid://cdug6wida8ii4" path="res://scripts/Class selection/class_object_ui.gd" id="1_3xyf8"]
+[ext_resource type="Texture2D" uid="uid://b67spsxvj8v8m" path="res://placeholders/archer.png" id="1_uxpg2"]
+
+[node name="Class object ui" type="VBoxContainer" unique_id=279038427]
+offset_right = 166.0
+offset_bottom = 197.0
+script = ExtResource("1_3xyf8")
+
+[node name="Icon" type="TextureRect" parent="." unique_id=1693832208]
+custom_maximum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+texture = ExtResource("1_uxpg2")
+expand_mode = 1
+
+[node name="Button" type="Button" parent="Icon" unique_id=1914313227]
+custom_maximum_size = Vector2(64, 64)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Text" type="Label" parent="." unique_id=1827254996]
+layout_mode = 2

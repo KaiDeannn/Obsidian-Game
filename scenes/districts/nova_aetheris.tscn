@@ -36,7 +36,7 @@ mouse_filter = 2
 [node name="Room" parent="." unique_id=1568612065 instance=ExtResource("7_bed5j")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, -4.552474, 0.5, 6.781437)
 
-[node name="Cube_0060" parent="Room" index="6" unique_id=1540001547]
+[node name="Cube_0060" parent="Room" index="6" unique_id=1826887078]
 visible = false
 
 [node name="Player" parent="." unique_id=1760609424 groups=["players"] instance=ExtResource("7_kr7s4")]

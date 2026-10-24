@@ -1,16 +1,6 @@
 [gd_scene format=3 uid="uid://dohrsbcmtf027"]
 
 [ext_resource type="Script" uid="uid://dl1pucy0fw08d" path="res://scripts/systems/class_selection_uia.gd" id="1_7wwsq"]
-[ext_resource type="Texture2D" uid="uid://bmag2r7hpmgjs" path="res://placeholders/swordswman.png" id="2_j0vak"]
-[ext_resource type="Texture2D" uid="uid://cxu8aomnccdvo" path="res://placeholders/ninja.png" id="3_603qv"]
-[ext_resource type="Texture2D" uid="uid://b67spsxvj8v8m" path="res://placeholders/archer.png" id="4_vptlh"]
-[ext_resource type="Texture2D" uid="uid://cpug1go2nb6sv" path="res://placeholders/sniper.png" id="5_taw11"]
-[ext_resource type="Texture2D" uid="uid://bq1pg77p8n8o5" path="res://placeholders/assault.png" id="6_wsih1"]
-[ext_resource type="Texture2D" uid="uid://psaugosfdw3p" path="res://placeholders/engineer.png" id="7_dyhmh"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_stj4k"]
 
 [node name="ClassSelection_UIA" type="Control" unique_id=1316626057]
 layout_mode = 3
@@ -21,231 +11,43 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_7wwsq")
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=853659020]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1464922853]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 73.0
+offset_bottom = -277.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
+theme_override_constants/margin_left = 128
+theme_override_constants/margin_top = 128
+theme_override_constants/margin_right = 128
+theme_override_constants/margin_bottom = 128
 
-[node name="GridContainer" type="GridContainer" parent="PanelContainer" unique_id=948982047]
-layout_mode = 2
-theme_override_constants/h_separation = 168
-columns = 6
-
-[node name="Ninja_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=1576268226]
-visibility_layer = 16
+[node name="Main container" type="VBoxContainer" parent="MarginContainer" unique_id=1382684138]
 layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1995341482]
-layout_mode = 0
-offset_right = 2048.0
-offset_bottom = 2048.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("3_603qv")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1134644753]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Ninja_B" type="Button" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1692391921]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=721987014]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "NINJA"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Archer_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=810792236]
-visibility_layer = 16
+[node name="Class container" type="HBoxContainer" parent="MarginContainer/Main container" unique_id=2077358233]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Archer_Control" unique_id=2069587764]
-layout_mode = 0
-offset_right = 2048.0
-offset_bottom = 2048.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("4_vptlh")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Archer_Control" unique_id=691665089]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Archer_B" type="Button" parent="PanelContainer/GridContainer/Archer_Control" unique_id=1678009192]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Archer_Control" unique_id=1116266032]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "ARCHER"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Sniper_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=1607889945]
-visibility_layer = 16
-layout_mode = 2
-
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=2089217943]
-layout_mode = 0
-offset_right = 2048.0
-offset_bottom = 2048.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("5_taw11")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=1292008347]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Sniper_B" type="Button" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=1699729084]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=85972310]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "SNIPER"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Assault_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=444516157]
-visibility_layer = 16
-layout_mode = 2
-
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Assault_Control" unique_id=789642365]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("6_wsih1")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Assault_Control" unique_id=1095671447]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Assault_B" type="Button" parent="PanelContainer/GridContainer/Assault_Control" unique_id=463089687]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Assault_Control" unique_id=1904381784]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "ASSAULT"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Engineer_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=2068390631]
-visibility_layer = 16
-layout_mode = 2
-
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=692111005]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("7_dyhmh")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=1230167391]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Engineer_B" type="Button" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=272438135]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=1608672402]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "ENGINEER"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Swordsman_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=854304343]
-visibility_layer = 16
-layout_mode = 2
-
-[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=1697225821]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("2_j0vak")
-
-[node name="title" type="Label" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=946199296]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "SWORDSMAN"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Swordsman_B" type="Button" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=2028460965]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="description" type="Label" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=1446615643]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Select_B" type="Button" parent="PanelContainer" unique_id=472042262]
-layout_mode = 2
-text = "SELECT"
-
-[node name="Label" type="Label" parent="PanelContainer" unique_id=1582089453]
+[node name="Choose weapon text" type="Label" parent="MarginContainer/Main container" unique_id=1582089453]
 layout_mode = 2
 text = "CHOOSE YOU CLASS ROLE"
+horizontal_alignment = 1
+vertical_alignment = 2
 
-[node name="Description" type="Label" parent="PanelContainer" unique_id=999942999]
+[node name="Class description" type="Label" parent="MarginContainer/Main container" unique_id=999942999]
+custom_maximum_size = Vector2(1152, -1)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "naturally favour the Central Plaza — an open, flat area perfect for close-quarters duels.
+Snipers will find the High Spires most useful — tall structures with long, clear sightlines overlooking the rest of the battlefield."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[connection signal="pressed" from="PanelContainer/Select_B" to="." method="_on_select_b_pressed"]
+[node name="Select Button" type="Button" parent="MarginContainer/Main container" unique_id=472042262]
+layout_mode = 2
+text = "SELECT"
