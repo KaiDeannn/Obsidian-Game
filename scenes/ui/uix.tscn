@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://djbej7eroc1ly" path="res://scripts/ui/uix.gd" id="1_nrx1b"]
 [ext_resource type="Script" uid="uid://dl5yw3y6rig21" path="res://camera_3d.gd" id="1_r6taw"]
 [ext_resource type="Shader" uid="uid://cgy7s2txj0st1" path="res://shaders/uix.gdshader" id="1_ycy7o"]
+[ext_resource type="Script" uid="uid://p32adhtpcjo5" path="res://scripts/ui/phone.gd" id="3_trob1"]
 [ext_resource type="FontFile" uid="uid://b2r1fngrw78kb" path="res://Fonts/Rajdhani-SemiBold.ttf" id="4_trob1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8vrlf"]
@@ -98,6 +99,24 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ql4es"]
+draw_center = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_s5u3a"]
+bg_color = Color(0, 0, 0, 0.1764706)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0.09019608)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u8wmi"]
+draw_center = false
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mo4hm"]
 draw_center = false
 border_width_left = 2
@@ -125,6 +144,18 @@ corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+bg_color = Color(0.46666667, 0.5686275, 0.98039216, 0.11372549)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7019608, 0.8039216, 0.9843137, 0.47843137)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [node name="UIX" type="Control" unique_id=712181157]
 layout_mode = 3
 anchors_preset = 15
@@ -135,6 +166,7 @@ grow_vertical = 2
 script = ExtResource("1_nrx1b")
 
 [node name="ProfilePanel" type="PanelContainer" parent="." unique_id=460258930]
+visible = false
 layout_mode = 0
 offset_left = 17.0
 offset_top = 22.0
@@ -195,20 +227,25 @@ text = "Level: 100"
 [node name="HBoxContainer" type="HBoxContainer" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer" unique_id=263826059]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=1203121764]
+[node name="RenownLabel" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=1203121764]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("4_trob1")
 theme_override_font_sizes/font_size = 12
-text = "renown: "
+text = "renown: 0"
 
-[node name="Label2" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=106565712]
+[node name="PointsLabel" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=106565712]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("4_trob1")
 theme_override_font_sizes/font_size = 12
 text = "points: 0"
 
+[node name="RankLabel" type="Label" parent="ProfilePanel/HBoxContainer/VBoxContainer2/MarginContainer/GridContainer/HBoxContainer" unique_id=1408981860]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "rank: D"
+
 [node name="Inventory" type="PanelContainer" parent="." unique_id=102561687]
-visible = false
 z_index = 10
 layout_mode = 1
 anchors_preset = 8
@@ -222,6 +259,7 @@ offset_right = 412.5
 offset_bottom = 219.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_r6taw")
 
 [node name="MarginContainer" type="MarginContainer" parent="Inventory" unique_id=599616832]
@@ -230,66 +268,99 @@ layout_mode = 2
 [node name="HBoxContainer" type="HBoxContainer" parent="Inventory/MarginContainer" unique_id=1978944250]
 layout_mode = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="Inventory/MarginContainer/HBoxContainer" unique_id=1642281946]
+[node name="WeaponPanel" type="VBoxContainer" parent="Inventory/MarginContainer/HBoxContainer" unique_id=1642281946]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1689484476]
+[node name="MarginContainer" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel" unique_id=1689484476]
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/margin_left = 370
 
-[node name="MarginContainer2" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1601888072]
+[node name="MarginContainer2" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel" unique_id=1601888072]
 layout_mode = 2
 theme_override_constants/margin_left = 155
 theme_override_constants/margin_top = 50
 theme_override_constants/margin_bottom = -2
 
-[node name="Panel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer2" unique_id=275660021]
+[node name="Panel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer2" unique_id=275660021]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="MarginContainer" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer2" unique_id=841710063]
+[node name="MarginContainer" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer2" unique_id=841710063]
 layout_mode = 2
 theme_override_constants/margin_left = 70
 
-[node name="Label" type="Label" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer2/MarginContainer" unique_id=810993792]
+[node name="ClassNameLabel" type="Label" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer2/MarginContainer" unique_id=810993792]
 layout_mode = 2
 text = "ENGINEER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="MarginContainer3" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1606314086]
+[node name="MarginContainer3" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel" unique_id=1606314086]
 layout_mode = 2
 theme_override_constants/margin_left = 74
 theme_override_constants/margin_top = 6
 theme_override_constants/margin_bottom = -2
 
-[node name="GridContainer" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer3" unique_id=1526377098]
+[node name="GridContainer" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer3" unique_id=1526377098]
 layout_mode = 2
-theme_override_constants/h_separation = 96
-columns = 2
+theme_override_constants/h_separation = 16
+columns = 3
 
-[node name="Panel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer3/GridContainer" unique_id=153907815]
+[node name="WeaponPanel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer3/GridContainer" unique_id=153907815]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel2" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer2/MarginContainer3/GridContainer" unique_id=3031777]
+[node name="ChestPanel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer3/GridContainer" unique_id=208606693]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Inventory/MarginContainer/HBoxContainer" unique_id=2039462758]
+[node name="AccessoryPanel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer3/GridContainer" unique_id=3031777]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
+
+[node name="MarginContainer4" type="MarginContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel" unique_id=453528999]
+layout_mode = 2
+theme_override_constants/margin_left = 112
+theme_override_constants/margin_top = 7
+theme_override_constants/margin_bottom = 1
+
+[node name="GridContainer" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer4" unique_id=1280076405]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+columns = 3
+
+[node name="WeaponPanel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer4/GridContainer" unique_id=308659647]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
+
+[node name="AccessoryPanel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/WeaponPanel/MarginContainer4/GridContainer" unique_id=1569471168]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
+
+[node name="InventoryPanel" type="VBoxContainer" parent="Inventory/MarginContainer/HBoxContainer" unique_id=2039462758]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Label" type="Label" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1724416110]
+[node name="Label" type="Label" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel" unique_id=1724416110]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "INVENTORY"
@@ -297,111 +368,128 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="Control" type="Control" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1822924794]
+[node name="Control" type="Control" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel" unique_id=1822924794]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="GridContainer" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1253094411]
+[node name="InventoryGrid" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel" unique_id=1253094411]
 propagate_maximum_size = false
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 6
 
-[node name="Panel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=721268105]
+[node name="Panel" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=721268105]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel2" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1637134796]
+[node name="Panel2" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1637134796]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel3" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1063146800]
+[node name="Panel3" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1063146800]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel4" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=401579545]
+[node name="Panel4" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=401579545]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel5" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1344037267]
+[node name="Panel5" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1344037267]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel6" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=446975420]
+[node name="Panel6" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=446975420]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel7" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=345622625]
+[node name="Panel7" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=345622625]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel8" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1070998711]
+[node name="Panel8" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1070998711]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel9" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1330577085]
+[node name="Panel9" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1330577085]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel10" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=28301358]
+[node name="Panel10" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=28301358]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel11" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=552018371]
+[node name="Panel11" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=552018371]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel12" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=319111551]
+[node name="Panel12" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=319111551]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel13" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=894514047]
+[node name="Panel13" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=894514047]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel14" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1075619964]
+[node name="Panel14" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1075619964]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel15" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1289136540]
+[node name="Panel15" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1289136540]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel16" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=739763761]
+[node name="Panel16" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=739763761]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel17" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=1119776621]
+[node name="Panel17" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=1119776621]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="Panel18" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer/GridContainer" unique_id=675741368]
+[node name="Panel18" type="Panel" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/InventoryGrid" unique_id=675741368]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_v5gy4")
 
-[node name="CenterContainer" type="CenterContainer" parent="Inventory/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1317004699]
+[node name="CenterContainer" type="CenterContainer" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel" unique_id=1317004699]
 layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/CenterContainer" unique_id=664162991]
+layout_mode = 2
+theme_override_constants/h_separation = 163
+columns = 2
+
+[node name="EquipButton" type="Button" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/CenterContainer/GridContainer" unique_id=63283108]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "EQUIP"
+
+[node name="UnequipButton" type="Button" parent="Inventory/MarginContainer/HBoxContainer/InventoryPanel/CenterContainer/GridContainer" unique_id=534811317]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+text = "UNEQUIP"
 
 [node name="Phone" type="PanelContainer" parent="." unique_id=266721779]
+visible = false
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -411,16 +499,21 @@ offset_top = -364.0
 offset_right = 247.0
 offset_bottom = -70.0
 grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_qbdty")
+script = ExtResource("3_trob1")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Phone" unique_id=1589152573]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="Container" type="Container" parent="Phone/VBoxContainer" unique_id=1373972928]
 layout_mode = 2
+mouse_behavior_recursive = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Phone/VBoxContainer" unique_id=1987665754]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_left = 64
 
 [node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer" unique_id=1034514323]
@@ -432,124 +525,963 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_auskg")
 
 [node name="MarginContainer2" type="MarginContainer" parent="Phone/VBoxContainer" unique_id=1409900594]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_top = 14
 
 [node name="CenterContainer" type="CenterContainer" parent="Phone/VBoxContainer/MarginContainer2" unique_id=371331725]
 layout_mode = 2
+mouse_filter = 2
 
-[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=624445211]
+[node name="ApplicationGrid" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=624445211]
+visible = false
 layout_mode = 2
+mouse_filter = 2
 columns = 4
 
-[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1479961383]
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1479961383]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ql4es")
 
-[node name="Panel2" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1759459759]
+[node name="Call_Contacts" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel" unique_id=1224954618]
+z_index = 10
 custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Con"
 
-[node name="Panel3" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=545503930]
+[node name="Panel2" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1759459759]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel4" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=55981045]
+[node name="Property_App" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel2" unique_id=1036982045]
+z_index = 10
 custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Pro"
 
-[node name="Panel5" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1803090048]
+[node name="Panel3" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=545503930]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1478755055]
+[node name="Vehicle_App" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel3" unique_id=925553422]
+z_index = 10
 custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Veh"
 
-[node name="Panel7" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1248080461]
+[node name="Panel4" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=55981045]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel8" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=634838423]
+[node name="JobBoard_App" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel4" unique_id=1074436757]
+z_index = 10
 custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Job
+"
 
-[node name="Panel9" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1555568979]
+[node name="Panel5" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1803090048]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel10" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1229763591]
+[node name="Market_App" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel5" unique_id=1172429638]
+z_index = 10
 custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Mar"
 
-[node name="Panel11" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1516820328]
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1478755055]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel12" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1841599517]
+[node name="Panel7" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1248080461]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel13" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=248373321]
+[node name="Panel8" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=634838423]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel14" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1747496489]
+[node name="Panel9" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1555568979]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel15" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=1618283827]
+[node name="Panel10" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1229763591]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
-[node name="Panel16" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/GridContainer" unique_id=966833515]
+[node name="Panel11" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1516820328]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Panel12" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1841599517]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Panel13" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=248373321]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Panel14" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1747496489]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Panel15" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=1618283827]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Panel16" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid" unique_id=966833515]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="Call_Contact_UI" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=1339861367]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=689621821]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "Call & Contacts"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=1326669381]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="Panel2" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=1533899335]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="Panel3" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=1335457916]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="Panel4" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=1735665400]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="Panel5" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=1424186827]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI" unique_id=879954433]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Call_Contact_UI/Panel6" unique_id=1301246866]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="Property_UI" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=1351283073]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI" unique_id=552780491]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "PROPERTY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI" unique_id=895904395]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel" unique_id=979137888]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel" unique_id=1387451710]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Mansion"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel" unique_id=922520974]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$10000"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel" unique_id=1116062217]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "Unowed"
+
+[node name="CenterContainer" type="CenterContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel" unique_id=1016817688]
+layout_mode = 0
+offset_top = 70.0
+offset_right = 175.0
+offset_bottom = 92.0
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel/CenterContainer" unique_id=747992279]
+layout_mode = 2
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel/CenterContainer/GridContainer" unique_id=337821267]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "PURCHASE"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel/CenterContainer/GridContainer" unique_id=1774444615]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "VIEW"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel/CenterContainer/GridContainer" unique_id=1314402399]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "SELL"
+
+[node name="Panel2" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI" unique_id=1369145510]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2" unique_id=2075790753]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2" unique_id=109190547]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "3x10 Mansion"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2" unique_id=1519114384]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$10123123"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2" unique_id=1030139527]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "Unowed"
+
+[node name="CenterContainer" type="CenterContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2" unique_id=1438797265]
+layout_mode = 0
+offset_top = 70.0
+offset_right = 175.0
+offset_bottom = 92.0
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2/CenterContainer" unique_id=2136539174]
+layout_mode = 2
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2/CenterContainer/GridContainer" unique_id=157746380]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "PURCHASE"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2/CenterContainer/GridContainer" unique_id=1779085372]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "VIEW"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel2/CenterContainer/GridContainer" unique_id=549509885]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "SELL"
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI" unique_id=1414931025]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Property_UI/Panel6" unique_id=448017772]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="Vehicle_UI" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=1659098776]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI" unique_id=525987753]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "Vehicle"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI" unique_id=1884799769]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel" unique_id=1603004446]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel" unique_id=331487521]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Lamborginini"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel" unique_id=1923528509]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$10000"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel" unique_id=472021293]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "Unowed"
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel" unique_id=1019959638]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 71.0
+offset_right = 165.0
+offset_bottom = 111.0
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel/GridContainer" unique_id=115767377]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "PURCHASE"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel/GridContainer" unique_id=916692767]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "RESERVE"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel/GridContainer" unique_id=182502153]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "SELL"
+
+[node name="Panel2" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI" unique_id=1935014882]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2" unique_id=306739441]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2" unique_id=1346696635]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Mustang Shelby GT500"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2" unique_id=662857245]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$12312312312314873273737"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2" unique_id=842165122]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "Unowed"
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2" unique_id=1600352101]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 71.0
+offset_right = 165.0
+offset_bottom = 111.0
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2/GridContainer" unique_id=1133748517]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "PURCHASE"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2/GridContainer" unique_id=1553321762]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "RESERVE"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel2/GridContainer" unique_id=462401179]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "SELL"
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI" unique_id=645619428]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Vehicle_UI/Panel6" unique_id=1334943967]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="JobListing_UI" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=1264483892]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI" unique_id=1594599087]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "JOB LISTING"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI" unique_id=471544695]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel" unique_id=389860675]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel" unique_id=121833889]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Warehouse Man"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel" unique_id=1546448301]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$3/hour"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel" unique_id=103450720]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "9 hours /day"
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel" unique_id=256589692]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 71.0
+offset_right = 165.0
+offset_bottom = 111.0
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel/GridContainer" unique_id=1246927094]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "APPLY"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel/GridContainer" unique_id=1964770356]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "VIEW"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel/GridContainer" unique_id=659962543]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "LOCATE"
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI" unique_id=1711102313]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/JobListing_UI/Panel6" unique_id=1467909050]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="Market_UI" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=1468298751]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI" unique_id=658073959]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "MARKET"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ItemsCategory" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI" unique_id=839510195]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_u8wmi")
+
+[node name="HScrollBar" type="HScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory" unique_id=703220962]
+custom_minimum_size = Vector2(175, 5)
+custom_maximum_size = Vector2(-1, 5)
+layout_mode = 0
+offset_top = 34.0
+offset_right = 150.0
+offset_bottom = 39.0
+
+[node name="CenterContainer" type="CenterContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory" unique_id=279048925]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory/CenterContainer" unique_id=2012164813]
+layout_mode = 2
+theme_override_constants/margin_bottom = 7
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory/CenterContainer/MarginContainer" unique_id=1376960052]
+layout_mode = 2
+columns = 5
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory/CenterContainer/MarginContainer/GridContainer" unique_id=1044221497]
+custom_minimum_size = Vector2(20, 30)
+custom_maximum_size = Vector2(45, 30)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 9
+text = "WEAPONS"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory/CenterContainer/MarginContainer/GridContainer" unique_id=1588475861]
+custom_minimum_size = Vector2(20, 30)
+custom_maximum_size = Vector2(45, 30)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 9
+text = "CLOTHES"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/ItemsCategory/CenterContainer/MarginContainer/GridContainer" unique_id=728880224]
+custom_minimum_size = Vector2(45, 30)
+custom_maximum_size = Vector2(100, 30)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 9
+text = "FURNITURE"
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI" unique_id=1679283233]
+custom_minimum_size = Vector2(175, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel" unique_id=1247821673]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 49.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel" unique_id=1263573366]
+layout_mode = 0
+offset_left = 54.0
+offset_top = 9.0
+offset_right = 119.0
+offset_bottom = 32.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Blade of Despair (1)"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel" unique_id=717642531]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 24.0
+offset_right = 120.0
+offset_bottom = 47.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "(Legendary) "
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel" unique_id=1047266036]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 35.0
+offset_right = 120.0
+offset_bottom = 58.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$9000000000000"
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel" unique_id=394546961]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 71.0
+offset_right = 165.0
+offset_bottom = 111.0
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel/GridContainer" unique_id=304933120]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "PURCHASE"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel/GridContainer" unique_id=726987657]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "VIEW"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel/GridContainer" unique_id=1124491503]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "LOCATE"
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI" unique_id=1520747191]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Market_UI/Panel6" unique_id=1407533433]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="Job_LISTS" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer" unique_id=480377301]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS" unique_id=1635058750]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 13
+text = "JOB LISTING"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS" unique_id=1687197428]
+custom_minimum_size = Vector2(175, 210)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_s5u3a")
+
+[node name="ColorRect" type="ColorRect" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=1638391488]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 67.0
+offset_bottom = 69.0
+
+[node name="Label" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=616779064]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 10.0
+offset_right = 156.0
+offset_bottom = 33.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 12
+text = "Warehouse Man"
+
+[node name="Label2" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=875706227]
+layout_mode = 0
+offset_left = 77.0
+offset_top = 29.0
+offset_right = 142.0
+offset_bottom = 52.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "$3/hour"
+
+[node name="Label3" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=524693180]
+layout_mode = 0
+offset_left = 77.0
+offset_top = 40.0
+offset_right = 142.0
+offset_bottom = 63.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "9 hours /day"
+
+[node name="Label4" type="Label" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=2143165634]
+custom_minimum_size = Vector2(155, 0)
+layout_mode = 0
+offset_left = 10.0
+offset_top = 78.0
+offset_right = 75.0
+offset_bottom = 245.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "You will work 9 hours /day for $3/hour as warehouse man. 
+Work: you will shut up for the entire day to keep me in peace"
+autowrap_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel" unique_id=742319575]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 174.0
+offset_right = 167.0
+offset_bottom = 214.0
+columns = 3
+
+[node name="Button" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel/GridContainer" unique_id=1320294288]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "APPLY"
+
+[node name="Button2" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel/GridContainer" unique_id=127753926]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "BACK"
+
+[node name="Button3" type="Button" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel/GridContainer" unique_id=235853740]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 10
+text = "LOCATE"
+
+[node name="Panel6" type="Panel" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS" unique_id=744517673]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VScrollBar" type="VScrollBar" parent="Phone/VBoxContainer/MarginContainer2/CenterContainer/Job_LISTS/Panel6" unique_id=1114860831]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 0
+offset_left = -80.0
+offset_top = -262.0
+offset_right = -72.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="NoContacts" type="Label" parent="Phone/VBoxContainer" unique_id=2094320129]
+visible = false
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+text = "You have no contacts"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="Phone" unique_id=1895833714]
 layout_mode = 2
+mouse_filter = 2
 alignment = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="Phone/VBoxContainer2" unique_id=1596554449]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Phone/VBoxContainer2/CenterContainer" unique_id=1360591135]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_bottom = 2
 
 [node name="GridContainer" type="GridContainer" parent="Phone/VBoxContainer2/CenterContainer/MarginContainer" unique_id=1516984378]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/h_separation = 36
 columns = 3
 
@@ -558,20 +1490,30 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
+
+[node name="BackButton" type="Button" parent="Phone/VBoxContainer2/CenterContainer/MarginContainer/GridContainer/Panel" unique_id=1699613397]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
 
 [node name="Panel2" type="Panel" parent="Phone/VBoxContainer2/CenterContainer/MarginContainer/GridContainer" unique_id=154929525]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
 [node name="Panel3" type="Panel" parent="Phone/VBoxContainer2/CenterContainer/MarginContainer/GridContainer" unique_id=1263255346]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 2
 
 [node name="Minimap" type="PanelContainer" parent="." unique_id=2140154243]
+visible = false
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -596,12 +1538,24 @@ size_flags_vertical = 0
 [node name="SubViewport" type="SubViewport" parent="Minimap/MarginContainer/SubViewportContainer" unique_id=819525581]
 handle_input_locally = false
 size = Vector2i(200, 200)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="Minimap/MarginContainer/SubViewportContainer/SubViewport" unique_id=429106099]
+cull_mask = 1047555
 script = ExtResource("1_r6taw")
 
+[node name="VBoxContainer" type="VBoxContainer" parent="Minimap" unique_id=657101804]
+layout_mode = 2
+
+[node name="QuestNPC" type="HBoxContainer" parent="Minimap/VBoxContainer" unique_id=2894338]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="Minimap/VBoxContainer/QuestNPC" unique_id=2104232567]
+layout_mode = 2
+color = Color(0, 0.7254902, 0, 1)
+
 [node name="QuestUI" type="PanelContainer" parent="." unique_id=1434746271]
+visible = false
 layout_mode = 1
 offset_left = 21.0
 offset_top = 138.0
@@ -625,6 +1579,31 @@ theme_override_font_sizes/font_size = 13
 text = "Active Quest"
 vertical_alignment = 1
 autowrap_mode = 2
+autowrap_trim_flags = 0
+
+[node name="Line2D" type="Line2D" parent="QuestUI/VBoxContainer/MarginContainer" unique_id=676253152]
+position = Vector2(-5, -1)
+points = PackedVector2Array(8, 30, 255, 30)
+width = 1.435
+default_color = Color(0.27370077, 0.3777527, 1.92523e-07, 0.5921569)
+sharp_limit = 0.0
+round_precision = 1
+
+[node name="Panel4" type="Panel" parent="QuestUI/VBoxContainer" unique_id=1755957645]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="QuestUI/VBoxContainer/Panel4" unique_id=1550608073]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 4.0
+offset_right = 256.0
+offset_bottom = 53.0
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 19
+text = "Quest Title
+"
+vertical_alignment = 1
+autowrap_mode = 3
 autowrap_trim_flags = 0
 
 [node name="Panel" type="Panel" parent="QuestUI/VBoxContainer" unique_id=451235578]
@@ -674,3 +1653,78 @@ theme_override_font_sizes/font_size = 12
 text = "Progress: 0 / 1 "
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="FullMap" type="PanelContainer" parent="." unique_id=372262264]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -377.5
+offset_top = -239.0
+offset_right = 377.5
+offset_bottom = 228.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="FullMap" unique_id=297065063]
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="FullMap/SubViewportContainer" unique_id=566406325]
+handle_input_locally = false
+size = Vector2i(756, 460)
+render_target_update_mode = 0
+
+[node name="Camera3D" type="Camera3D" parent="FullMap/SubViewportContainer/SubViewport" unique_id=36163430]
+transform = Transform3D(1, 0, 0, 0, -0.09114222, 0.99583787, 0, -0.99583787, -0.09114222, 0, 192.50156, 0)
+
+[node name="RankAdvancementPanel" type="PanelContainer" parent="." unique_id=1807262201]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -267.0
+offset_top = 45.0
+offset_right = 277.0
+offset_bottom = 127.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="RankAdvancementPanel" unique_id=953555558]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="RankAdvancementPanel/VBoxContainer" unique_id=1884893901]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_trob1")
+text = "Congratulations — you have advanced to your new rank! Your class has grown stronger. New opportunities are now available to you."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="Label2" type="Label" parent="RankAdvancementPanel/VBoxContainer" unique_id=1244152254]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2331478, 0.45712483, 1, 1)
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 29
+text = "Current Rank: A"
+horizontal_alignment = 1
+vertical_alignment = 1
+justification_flags = 171
+
+[node name="Label3" type="Label" parent="RankAdvancementPanel/VBoxContainer" unique_id=1035764609]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2331478, 0.45712483, 1, 1)
+theme_override_fonts/font = ExtResource("4_trob1")
+theme_override_font_sizes/font_size = 25
+text = "Next Rank: C"
+horizontal_alignment = 1
+vertical_alignment = 1
+justification_flags = 171
+
+[connection signal="pressed" from="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel/Call_Contacts" to="Phone" method="_on_call_contacts_pressed"]
+[connection signal="pressed" from="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel2/Property_App" to="Phone" method="_on_property_app_pressed"]
+[connection signal="pressed" from="Phone/VBoxContainer/MarginContainer2/CenterContainer/ApplicationGrid/Panel3/Vehicle_App" to="Phone" method="_on_vehicle_app_pressed"]
+[connection signal="pressed" from="Phone/VBoxContainer2/CenterContainer/MarginContainer/GridContainer/Panel/BackButton" to="Phone" method="_on_back_button_pressed"]

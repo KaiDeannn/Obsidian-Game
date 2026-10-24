@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="QuestData" format=3 uid="uid://dpx8f22fm0wsq"]
+
+[ext_resource type="Script" uid="uid://dd4pjmcklbw7q" path="res://scripts/QuestFolder/QuestSystem/QuestData.gd" id="1_m164l"]
+
+[resource]
+script = ExtResource("1_m164l")
+quest_id = "fuckyourself"
+title = "gofuck yourself"
+description = "fuckkkkkk"
+target = 12
+renown_reward = 123
+points_reward = 12343342
+metadata/_custom_type_script = "uid://dd4pjmcklbw7q"

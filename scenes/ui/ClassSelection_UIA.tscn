@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://bq1pg77p8n8o5" path="res://placeholders/assault.png" id="6_wsih1"]
 [ext_resource type="Texture2D" uid="uid://psaugosfdw3p" path="res://placeholders/engineer.png" id="7_dyhmh"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_stj4k"]
 
 [node name="ClassSelection_UIA" type="Control" unique_id=1316626057]
@@ -19,107 +21,43 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_7wwsq")
 
-[node name="Select_Control" type="Control" parent="." unique_id=1125582395]
-visibility_layer = 16
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=853659020]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -40.0
-offset_right = 20.0
 grow_horizontal = 2
-grow_vertical = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
 
-[node name="Select_B" type="Button" parent="Select_Control" unique_id=472042262]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -31.5
-offset_top = -140.0
-offset_right = 31.5
-offset_bottom = -109.0
-grow_horizontal = 2
-grow_vertical = 0
-text = "SELECT"
+[node name="GridContainer" type="GridContainer" parent="PanelContainer" unique_id=948982047]
+layout_mode = 2
+theme_override_constants/h_separation = 168
+columns = 6
 
-[node name="Swordsman_Control" type="Control" parent="." unique_id=358710032]
+[node name="Ninja_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=1576268226]
 visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -476.0
-offset_top = 100.0
-offset_right = -436.0
-offset_bottom = 140.0
-grow_horizontal = 2
+layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Swordsman_Control" unique_id=497170296]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(0.055, 0.055)
-texture = ExtResource("2_j0vak")
-
-[node name="title" type="Label" parent="Swordsman_Control" unique_id=2060280767]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 114.0
-offset_right = 110.0
-offset_bottom = 137.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "SWORDSMAN"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Swordsman_B" type="Button" parent="Swordsman_Control" unique_id=888916879]
-layout_mode = 0
-offset_right = 113.0
-offset_bottom = 113.0
-theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
-
-[node name="description" type="Label" parent="Swordsman_Control" unique_id=1442124077]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-
-[node name="Ninja_Control" type="Control" parent="." unique_id=243313616]
-visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -326.0
-offset_top = 100.0
-offset_right = -286.0
-offset_bottom = 140.0
-grow_horizontal = 2
-
-[node name="Icon" type="TextureRect" parent="Ninja_Control" unique_id=1577236136]
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1995341482]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("3_603qv")
 
-[node name="description" type="Label" parent="Ninja_Control" unique_id=33110576]
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1134644753]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Ninja_B" type="Button" parent="Ninja_Control" unique_id=474945309]
+[node name="Ninja_B" type="Button" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=1692391921]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="Ninja_Control" unique_id=1284638409]
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Ninja_Control" unique_id=721987014]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -130,37 +68,29 @@ text = "NINJA"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Archer_Control" type="Control" parent="." unique_id=387202338]
+[node name="Archer_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=810792236]
 visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -176.0
-offset_top = 100.0
-offset_right = -136.0
-offset_bottom = 140.0
-grow_horizontal = 2
+layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Archer_Control" unique_id=472574244]
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Archer_Control" unique_id=2069587764]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("4_vptlh")
 
-[node name="description" type="Label" parent="Archer_Control" unique_id=796879801]
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Archer_Control" unique_id=691665089]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Archer_B" type="Button" parent="Archer_Control" unique_id=1989741662]
+[node name="Archer_B" type="Button" parent="PanelContainer/GridContainer/Archer_Control" unique_id=1678009192]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="Archer_Control" unique_id=650492867]
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Archer_Control" unique_id=1116266032]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -171,37 +101,29 @@ text = "ARCHER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Sniper_Control" type="Control" parent="." unique_id=2003596690]
+[node name="Sniper_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=1607889945]
 visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -26.0
-offset_top = 100.0
-offset_right = 14.0
-offset_bottom = 140.0
-grow_horizontal = 2
+layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Sniper_Control" unique_id=593922087]
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=2089217943]
 layout_mode = 0
 offset_right = 2048.0
 offset_bottom = 2048.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("5_taw11")
 
-[node name="description" type="Label" parent="Sniper_Control" unique_id=1352795325]
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=1292008347]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Sniper_B" type="Button" parent="Sniper_Control" unique_id=1447262830]
+[node name="Sniper_B" type="Button" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=1699729084]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="Sniper_Control" unique_id=1915976808]
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Sniper_Control" unique_id=85972310]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -212,37 +134,29 @@ text = "SNIPER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Assault_Control" type="Control" parent="." unique_id=213673835]
+[node name="Assault_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=444516157]
 visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 124.0
-offset_top = 100.0
-offset_right = 164.0
-offset_bottom = 140.0
-grow_horizontal = 2
+layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Assault_Control" unique_id=1773437040]
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Assault_Control" unique_id=789642365]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("6_wsih1")
 
-[node name="description" type="Label" parent="Assault_Control" unique_id=1537429049]
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Assault_Control" unique_id=1095671447]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Assault_B" type="Button" parent="Assault_Control" unique_id=100163706]
+[node name="Assault_B" type="Button" parent="PanelContainer/GridContainer/Assault_Control" unique_id=463089687]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="Assault_Control" unique_id=1249749569]
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Assault_Control" unique_id=1904381784]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -253,37 +167,29 @@ text = "ASSAULT"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Engineer_Control" type="Control" parent="." unique_id=1987066381]
+[node name="Engineer_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=2068390631]
 visibility_layer = 16
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 274.0
-offset_top = 100.0
-offset_right = 314.0
-offset_bottom = 140.0
-grow_horizontal = 2
+layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Engineer_Control" unique_id=645011604]
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=692111005]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(0.055, 0.055)
 texture = ExtResource("7_dyhmh")
 
-[node name="description" type="Label" parent="Engineer_Control" unique_id=765974615]
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=1230167391]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="Engineer_B" type="Button" parent="Engineer_Control" unique_id=1326571573]
+[node name="Engineer_B" type="Button" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=272438135]
 layout_mode = 0
 offset_right = 113.0
 offset_bottom = 113.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
 
-[node name="title" type="Label" parent="Engineer_Control" unique_id=645319837]
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Engineer_Control" unique_id=1608672402]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 114.0
@@ -294,50 +200,52 @@ text = "ENGINEER"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=973015743]
-z_index = -10
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+[node name="Swordsman_Control" type="Control" parent="PanelContainer/GridContainer" unique_id=854304343]
+visibility_layer = 16
+layout_mode = 2
 
-[node name="Label" type="Label" parent="." unique_id=1582089453]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -99.5
-offset_top = 25.0
-offset_right = 99.5
-offset_bottom = 48.0
-grow_horizontal = 2
+[node name="Icon" type="TextureRect" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=1697225821]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.055, 0.055)
+texture = ExtResource("2_j0vak")
+
+[node name="title" type="Label" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=946199296]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 114.0
+offset_right = 110.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "SWORDSMAN"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Swordsman_B" type="Button" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=2028460965]
+layout_mode = 0
+offset_right = 113.0
+offset_bottom = 113.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_stj4k")
+
+[node name="description" type="Label" parent="PanelContainer/GridContainer/Swordsman_Control" unique_id=1446615643]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Select_B" type="Button" parent="PanelContainer" unique_id=472042262]
+layout_mode = 2
+text = "SELECT"
+
+[node name="Label" type="Label" parent="PanelContainer" unique_id=1582089453]
+layout_mode = 2
 text = "CHOOSE YOU CLASS ROLE"
 
-[node name="Description" type="Label" parent="." unique_id=999942999]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -240.5
-offset_top = -298.0
-offset_right = 240.5
-offset_bottom = -171.0
-grow_horizontal = 2
-grow_vertical = 0
+[node name="Description" type="Label" parent="PanelContainer" unique_id=999942999]
+layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[connection signal="pressed" from="Select_Control/Select_B" to="." method="_on_select_b_pressed"]
-[connection signal="pressed" from="Swordsman_Control/Swordsman_B" to="." method="_on_swordsman_b_pressed"]
-[connection signal="pressed" from="Ninja_Control/Ninja_B" to="." method="_on_ninja_b_pressed"]
-[connection signal="pressed" from="Archer_Control/Archer_B" to="." method="_on_archer_b_pressed"]
-[connection signal="pressed" from="Sniper_Control/Sniper_B" to="." method="_on_sniper_b_pressed"]
-[connection signal="pressed" from="Assault_Control/Assault_B" to="." method="_on_assault_b_pressed"]
-[connection signal="pressed" from="Engineer_Control/Engineer_B" to="." method="_on_engineer_b_pressed"]
+[connection signal="pressed" from="PanelContainer/Select_B" to="." method="_on_select_b_pressed"]

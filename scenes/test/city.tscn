@@ -1,8 +1,13 @@
 [gd_scene format=3 uid="uid://dtrykxdwty6hq"]
 
 [ext_resource type="PackedScene" uid="uid://bru07fd40ig0g" path="res://scenes/player.tscn" id="1_q2uus"]
-[ext_resource type="Script" uid="uid://dpnpdbm8pjy3f" path="res://scripts/questnpc/quest_giver.gd" id="2_lt71a"]
+[ext_resource type="Script" uid="uid://dpnpdbm8pjy3f" path="res://scripts/QuestFolder/questnpc/quest_giver.gd" id="2_lt71a"]
+[ext_resource type="Script" uid="uid://l0hxilqd4cqd" path="res://scripts/systems/NPCMinimapMarker.gd" id="3_8qsf5"]
 [ext_resource type="PackedScene" uid="uid://brf3uunlwt4by" path="res://scenes/ui/uix.tscn" id="3_e41dd"]
+[ext_resource type="Script" uid="uid://ddnwnjlraw06p" path="res://scripts/Inventory/item_pickup_3d.gd" id="5_mrg8k"]
+[ext_resource type="Script" uid="uid://cjhdcl5bf3h3t" path="res://scripts/Inventory/InventoryManager.gd" id="6_f1vbq"]
+[ext_resource type="Resource" uid="uid://d3s7xat8snnfv" path="res://ResourcesFilesTres/inventory/wood.tres" id="7_2254v"]
+[ext_resource type="PackedScene" uid="uid://bsfvu81pmpjo3" path="res://scenes/InventoryManager.tscn" id="8_f1vbq"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lt71a"]
 size = Vector3(0.6723633, 1, 96.147064)
@@ -11,10 +16,12 @@ size = Vector3(0.6723633, 1, 96.147064)
 size = Vector3(196.73654, 1, 189.70166)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8vrlf"]
-albedo_color = Color(0.5480628, 0.7664083, 7.70092e-07, 1)
+albedo_color = Color(0.28746042, 0.40973142, 1.92523e-07, 1)
 
 [sub_resource type="Environment" id="Environment_lt71a"]
-background_energy_multiplier = 2.36
+background_mode = 2
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
 reflected_light_source = 2
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_1vivr"]
@@ -23,6 +30,11 @@ reflected_light_source = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1vivr"]
 size = Vector3(6.725464, 1, 6.4522705)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qbdty"]
+size = Vector3(2.3461914, 1, 1.6327515)
+
+[sub_resource type="BoxMesh" id="BoxMesh_f1vbq"]
 
 [node name="City" type="Node3D" unique_id=1856632297]
 
@@ -70,4 +82,23 @@ autowrap_mode = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06304932, 0, 0.4151001)
 shape = SubResource("BoxShape3D_1vivr")
 
+[node name="Node3D" type="Node3D" parent="QuestGiver" unique_id=1710428458]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6784844, 0)
+script = ExtResource("3_8qsf5")
+
 [node name="UIX" parent="." unique_id=712181157 instance=ExtResource("3_e41dd")]
+
+[node name="InventoryManager" parent="." unique_id=1160430697 instance=ExtResource("8_f1vbq")]
+script = ExtResource("6_f1vbq")
+
+[node name="ItemPickup" type="Area3D" parent="." unique_id=871158614]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8998866, 3.5739949)
+script = ExtResource("5_mrg8k")
+item_data = ExtResource("7_2254v")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ItemPickup" unique_id=865923112]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14819336, 0, -0.0069274902)
+shape = SubResource("BoxShape3D_qbdty")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ItemPickup" unique_id=961635649]
+mesh = SubResource("BoxMesh_f1vbq")

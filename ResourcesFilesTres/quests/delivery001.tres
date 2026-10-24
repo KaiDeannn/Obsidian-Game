@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="QuestData" format=3 uid="uid://4srdeqnqbg2s"]
+
+[ext_resource type="Script" uid="uid://dd4pjmcklbw7q" path="res://scripts/QuestFolder/QuestSystem/QuestData.gd" id="1_fg3si"]
+
+[resource]
+script = ExtResource("1_fg3si")
+quest_id = "Delivery001"
+title = "Delivery"
+description = "Deliver this to Josh"
+renown_reward = 222
+points_reward = 1234
+metadata/_custom_type_script = "uid://dd4pjmcklbw7q"

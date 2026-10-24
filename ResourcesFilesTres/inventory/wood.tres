@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://d3s7xat8snnfv"]
+
+[ext_resource type="Script" uid="uid://dsyt64oaqmpkg" path="res://scripts/Inventory/ItemData.gd" id="1_lxni3"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vxyfu"]
+load_path = "res://.godot/imported/e8V9jiG7re1E6lYAweGIKJmvx1Y9qn0eK3nK2G2wJYufisylbFJmzU65nXz4NQ2-5zVXPcOsZhAVdXvhREXAn_N0JJIpi5mRMlFBgMi2LCYtz19zGL7Zh7YhjTqGfnsSotPtpQRgeYS5m9EU4iW6jUqpZHa294y-2Cyhvo-vSw-qkE1fiXaxhj0KrStR0rkj.jpg-751be8d8f374e04bd14f5c5247046b8c.s3tc.ctex"
+
+[resource]
+script = ExtResource("1_lxni3")
+item_id = "grave_singer"
+display_name = "The Grave-Singer"
+icon = SubResource("CompressedTexture2D_vxyfu")
+description = "a wood lmao "
+item_value = 1
+rarity = 2
+equipment_slot = 1
+metadata/_custom_type_script = "uid://dsyt64oaqmpkg"

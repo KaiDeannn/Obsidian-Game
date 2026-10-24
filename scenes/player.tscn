@@ -32,3 +32,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55628645, 0)
 shape = SubResource("BoxShape3D_mid2d")
 
 [node name="Camera" type="Camera3D" parent="Camera pivot/Spring arm" unique_id=991343850]
+cull_mask = 1047553
