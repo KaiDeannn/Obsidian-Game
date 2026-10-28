@@ -173,8 +173,20 @@ func _process(delta: float) -> void:
 
 
 # ============================================================ helpers
+## The player's body. The city scene puts both the "Player" wrapper and its
+## "Main character" CharacterBody3D in the "players" group, so prefer a physics body.
 func _player() -> Node3D:
-	return get_tree().get_first_node_in_group("players") as Node3D
+	var fallback: Node3D = null
+	for n in get_tree().get_nodes_in_group("players"):
+		if n is CharacterBody3D:
+			return n
+		if n is Node3D:
+			var body := (n as Node3D).get_node_or_null("Main character")
+			if body is CharacterBody3D:
+				return body
+			if fallback == null:
+				fallback = n
+	return fallback
 
 
 func _pick_spawn(player: Node3D) -> Vector3:
@@ -197,7 +209,8 @@ func _pick_spawn(player: Node3D) -> Vector3:
 	var guess := player.global_position + dir.normalized() * spawn_distance
 	var space := player.get_world_3d().direct_space_state
 	var q := PhysicsRayQueryParameters3D.create(guess + Vector3.UP * 25.0, guess + Vector3.DOWN * 25.0)
-	q.exclude = [player.get_rid()]
+	if player is CollisionObject3D:
+		q.exclude = [(player as CollisionObject3D).get_rid()]
 	var hit := space.intersect_ray(q)
 	if not hit.is_empty():
 		return hit["position"]
