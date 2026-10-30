@@ -135,10 +135,13 @@ func _test_valet() -> void:
 	_check(Globalvar.contacts.has("mechanic"), "mechanic saved to contacts")
 	Phone.call_contact("mechanic")
 	await get_tree().create_timer(1.2).timeout
+	_check(Phone._call_text.text.begins_with("Hey, how can I help you"), "Rook answers with the greeting voice line")
+	_check(Phone._call_actions.get_child_count() == 0, "options wait until the greeting has been spoken")
+	await get_tree().create_timer(4.0).timeout
 	var labels: Array = []
 	for b in Phone._call_actions.get_children():
 		labels.append(b.text)
-	_check(labels == ["Request", "Return", "Fix", "End"], "mechanic call shows Request / Return / Fix bar (%s)" % str(labels))
+	_check(labels == ["Request", "Fix", "Return", "End"], "greeting is followed by the Request / Fix / Return bar (%s)" % str(labels))
 	Phone._valet_mode = "request"
 	Phone._build_valet_panel()
 	_check(Phone._call_panel.get_child_count() >= 2, "request lists owned cars")

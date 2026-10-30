@@ -38,7 +38,10 @@ an autoload (`Phone`) that draws itself in any scene.
   be exercised offline. `audio/driver/enable_input` is on in project settings for the mic.
 
 ## Automated valet service (Valet autoload, contact "Rook Hale - Valet & Mechanic")
-Call Rook from Contacts or the Vehicle app. When he answers, the call screen shows a bar:
+Call Rook from Contacts or the Vehicle app. When he answers, his recorded greeting plays
+("Hey, how can I help you, or what do you want?" - `audio/phone/rook_greeting.wav`; the
+other `rook_*.wav` lines voice his Request / Fix / Return confirmations and the repair
+callback). Once the line has been spoken the call screen shows a bar:
 - **Request** - lists your cars with their status. Pick one: an NPC spawns in it at a nearby
   road node (place `Marker3D` nodes in the `road_node` group along streets; without any, a
   spot ~40 m away on the ground is used), drives to your position, parks six metres away,

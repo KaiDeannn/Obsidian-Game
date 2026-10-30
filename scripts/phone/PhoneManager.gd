@@ -50,6 +50,14 @@ var _call_text: Label
 var _call_actions: HBoxContainer
 var _call_avatar: PanelContainer
 var _call_typing: Tween
+var _voice: AudioStreamPlayer          # Rook's recorded lines (audio/phone/rook_*.wav)
+const VOICE_LINES := {
+	"greeting": "res://audio/phone/rook_greeting.wav",
+	"request": "res://audio/phone/rook_request.wav",
+	"return": "res://audio/phone/rook_return.wav",
+	"fix": "res://audio/phone/rook_fix.wav",
+	"ready": "res://audio/phone/rook_ready.wav",
+}
 var _marker: GpsMarker
 var _gps_job_id := ""
 var _confirm_id := ""
@@ -1355,7 +1363,11 @@ func _answer_call() -> void:
 	_call_typing = create_tween()
 	_call_typing.tween_property(_call_text, "visible_characters", line.length(), clampf(line.length() * 0.035, 1.0, 12.0))
 	if _active_call["contact"] == "mechanic":
-		_show_valet_bar()
+		# Valet spec: the greeting voice line plays first, then Request / Fix / Return appear.
+		var length := _speak("ready" if _active_call["incoming"] else "greeting")
+		get_tree().create_timer(maxf(length, 1.4), true).timeout.connect(func() -> void:
+			if _call_overlay.visible and _active_call.get("contact", "") == "mechanic":
+				_show_valet_bar())
 		return
 	if _active_call["action_label"] != "":
 		var act := PhoneTheme.button(_active_call["action_label"], PhoneTheme.ACCENT, 14, 40)
@@ -1411,7 +1423,7 @@ func _pulse_avatar(on: bool) -> void:
 func _show_valet_bar() -> void:
 	for c in _call_actions.get_children():
 		c.queue_free()
-	for entry in [["Request", "request", PhoneTheme.ACCENT], ["Return", "return", PhoneTheme.ACCENT2], ["Fix", "fix", PhoneTheme.AMBER]]:
+	for entry in [["Request", "request", PhoneTheme.ACCENT], ["Fix", "fix", PhoneTheme.AMBER], ["Return", "return", PhoneTheme.ACCENT2]]:
 		var b := PhoneTheme.button(entry[0], entry[2], 14, 40)
 		b.custom_minimum_size = Vector2(96, 40)
 		var mode: String = entry[1]
@@ -1442,7 +1454,7 @@ func _build_valet_panel() -> void:
 				var blocker: String = Valet.request_blocker(vid)
 				_valet_row(vid, "Send", PhoneTheme.ACCENT, blocker, func() -> void:
 					if Valet.request(vid):
-						_say("Driver's on the way with your %s. ETA about %d seconds - I'll ping you when it's parked." % [PhoneData.vehicle(vid)["name"], int(Valet.last_delivery_eta)]))
+						_say("Driver's on the way with your %s. ETA about %d seconds - I'll ping you when it's parked." % [PhoneData.vehicle(vid)["name"], int(Valet.last_delivery_eta)], "request"))
 		"return":
 			_call_panel.add_child(PhoneTheme.label("RETURN WHICH CAR TO THE GARAGE?", 11, PhoneTheme.TEXT_DIM))
 			var any := false
@@ -1451,7 +1463,7 @@ func _build_valet_panel() -> void:
 					any = true
 					_valet_row(vid, "Return", PhoneTheme.ACCENT2, "", func() -> void:
 						if Valet.return_vehicle(vid):
-							_say("%s is back in the garage." % PhoneData.vehicle(vid)["name"]))
+							_say("%s is back in the garage." % PhoneData.vehicle(vid)["name"], "return"))
 			if not any:
 				_call_panel.add_child(PhoneTheme.wrapped("Nothing of yours is out on the street right now.", 12))
 		"fix":
@@ -1465,7 +1477,7 @@ func _build_valet_panel() -> void:
 					any = true
 					_valet_row(vid, "Fix %d%%" % d, PhoneTheme.AMBER, "", func() -> void:
 						if Valet.fix(vid):
-							_say("%s is in the service queue. Ready in %s - I'll call when it's done." % [PhoneData.vehicle(vid)["name"], Valet._fmt(Valet.service_remaining(vid))]))
+							_say("%s is in the service queue. Ready in %s - I'll call when it's done." % [PhoneData.vehicle(vid)["name"], Valet._fmt(Valet.service_remaining(vid))], "fix"))
 			if not any:
 				_call_panel.add_child(PhoneTheme.wrapped("Nothing's damaged. Drive safe.", 12))
 			if not Valet.service_queue.is_empty():
@@ -1491,13 +1503,28 @@ func _valet_row(vid: String, action: String, color: Color, blocker: String, on_p
 	_call_panel.add_child(row)
 
 
-func _say(text: String) -> void:
+func _say(text: String, voice_line := "") -> void:
+	_speak(voice_line)
 	if _call_typing and _call_typing.is_valid():
 		_call_typing.kill()
 	_call_text.text = text
 	_call_text.visible_characters = 0
 	_call_typing = create_tween()
 	_call_typing.tween_property(_call_text, "visible_characters", text.length(), clampf(text.length() * 0.025, 0.6, 6.0))
+
+
+## Plays one of Rook's recorded lines and returns its length (0 if none / not imported).
+func _speak(line: String) -> float:
+	if not VOICE_LINES.has(line) or not ResourceLoader.exists(VOICE_LINES[line]):
+		return 0.0
+	if _voice == null:
+		_voice = AudioStreamPlayer.new()
+		_voice.volume_db = 2.0
+		add_child(_voice)
+	var stream: AudioStream = load(VOICE_LINES[line])
+	_voice.stream = stream
+	_voice.play()
+	return stream.get_length()
 
 
 func _refresh_valet_views() -> void:

@@ -64,7 +64,7 @@ const CONTACTS: Dictionary = {
 		"lines": ["We're scouting a Rank D war next week. Keep your Renown climbing.",
 			"Check the Clan Hub, I posted the roster and the map vote."]},
 	"mechanic": {"name": "Rook Hale", "role": "Valet & Mechanic", "color": Color(0.80, 0.50, 0.14),
-		"lines": ["Rook here. I can send a driver with one of your cars, take one back to the garage, or put a damaged one on the lift. What'll it be?"]},
+		"lines": ["Hey, how can I help you, or what do you want?"]},
 	"foundry": {"name": "Foundry Desk", "role": "Market", "color": Color(0.22, 0.52, 0.36),
 		"lines": ["Stock levels are live in the Market App. Orders can be collected or delivered to your home."]},
 }
