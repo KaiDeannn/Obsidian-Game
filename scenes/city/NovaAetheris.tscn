@@ -1,0 +1,92 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/city/CityController.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/city/CityBuilder.gd" id="2_builder"]
+[ext_resource type="PackedScene" path="res://scenes/city/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/city/Vehicle.tscn" id="4_vehicle"]
+[ext_resource type="PackedScene" path="res://scenes/city/CityGate.tscn" id="5_gate"]
+[ext_resource type="Script" path="res://scripts/city/CameraRig.gd" id="6_rig"]
+[ext_resource type="Script" path="res://scripts/ui/CityHUD.gd" id="7_hud"]
+[ext_resource type="Script" path="res://scripts/ui/PhoneUI.gd" id="8_phone"]
+[ext_resource type="Script" path="res://scripts/city/ObjectiveMarker.gd" id="9_marker"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_night"]
+sky_top_color = Color(0.015, 0.02, 0.035, 1)
+sky_horizon_color = Color(0.12, 0.14, 0.2, 1)
+sky_curve = 0.12
+ground_bottom_color = Color(0.02, 0.02, 0.03, 1)
+ground_horizon_color = Color(0.08, 0.09, 0.12, 1)
+sun_angle_max = 8.0
+sun_curve = 0.2
+
+[sub_resource type="Sky" id="Sky_night"]
+sky_material = SubResource("ProceduralSkyMaterial_night")
+
+[sub_resource type="Environment" id="Environment_city"]
+background_mode = 2
+sky = SubResource("Sky_night")
+ambient_light_source = 2
+ambient_light_color = Color(0.38, 0.4, 0.48, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 3
+tonemap_exposure = 1.05
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.9
+glow_bloom = 0.12
+glow_blend_mode = 0
+fog_enabled = true
+fog_light_color = Color(0.08, 0.09, 0.13, 1)
+fog_density = 0.0045
+fog_sky_affect = 0.4
+
+[node name="NovaAetheris" type="Node3D"]
+script = ExtResource("1_ctrl")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_city")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="."]
+light_color = Color(0.78, 0.82, 0.95, 1)
+light_energy = 0.55
+shadow_enabled = true
+directional_shadow_max_distance = 160.0
+
+[node name="CityBuilder" type="Node3D" parent="."]
+script = ExtResource("2_builder")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.8, 12)
+
+[node name="Vehicle" parent="." instance=ExtResource("4_vehicle")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -8, 0.6, 26)
+
+[node name="CityGate" parent="." instance=ExtResource("5_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -146)
+
+[node name="ObjectiveMarker" type="Node3D" parent="."]
+script = ExtResource("9_marker")
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("6_rig")
+
+[node name="Yaw" type="Node3D" parent="CameraRig"]
+
+[node name="Pitch" type="Node3D" parent="CameraRig/Yaw"]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraRig/Yaw/Pitch"]
+collision_mask = 1
+spring_length = 4.6
+margin = 0.3
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig/Yaw/Pitch/SpringArm3D"]
+current = true
+fov = 70.0
+far = 600.0
+
+[node name="CityHUD" type="CanvasLayer" parent="."]
+script = ExtResource("7_hud")
+
+[node name="PhoneUI" type="CanvasLayer" parent="."]
+layer = 20
+script = ExtResource("8_phone")

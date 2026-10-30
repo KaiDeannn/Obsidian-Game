@@ -1,0 +1,8 @@
+# Godot import cache
+.godot/
+# rendered previews (regenerate with tools/DemoPreview.tscn / tools/CommsValetPreview.tscn)
+preview/*.avi
+preview/*.mp4
+# macOS
+.DS_Store
+preview/maps/*.blend1
