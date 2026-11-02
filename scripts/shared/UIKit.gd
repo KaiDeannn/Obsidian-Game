@@ -149,6 +149,14 @@ static func full_rect(c: Control) -> Control:
 	return c
 
 
+static func rarity_color(rarity: String) -> Color:
+	match rarity:
+		"Mythic": return Color(1.0, 0.32, 0.45)
+		"Legendary": return Color(1.0, 0.67, 0.27)
+		"Rare": return Color(0.35, 0.62, 1.0)
+	return TEXT_DIM
+
+
 static func tier_color(tier: String) -> Color:
 	match tier:
 		"Mythic": return Color(0.95, 0.4, 1.0)

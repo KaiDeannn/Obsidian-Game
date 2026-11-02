@@ -47,6 +47,11 @@ func _test_progression() -> void:
 	_check(not JobManager.has_active(), "job completes after visiting every stage")
 	_check(GameState.credits == before + 300 + 15, "job pays 300 cr + 5% property perk")
 	_check(RankManager.renown == 150, "job pays 150 renown")
+	# premium shop
+	_check(CityData.PREMIUM_WEAPONS.size() == 12, "12 ninja premium weapons in the catalogue")
+	_check(not GameState.buy_premium("dragons_breath", 3200), "cannot afford Dragon's Breath on the starting Aether")
+	_check(GameState.buy_premium("golden_razor", 680) and GameState.aether == 3000 - 680, "buys The Golden Razor for 680 Aether")
+	_check(not GameState.buy_premium("golden_razor", 680), "cannot buy a premium weapon twice")
 
 
 func _test_city() -> void:
@@ -91,6 +96,8 @@ func _test_city() -> void:
 	phone.show_page("jobs")
 	_check(phone._pages["jobs"].get_child_count() >= 2, "jobs app lists tasks")
 	phone.show_page("property")
+	phone.show_page("premium")
+	_check(phone._pages["premium"].get_child_count() >= 2, "premium shop page builds")
 	phone.show_page("stats")
 	phone.toggle()
 	_check(not phone.is_open, "phone closes")

@@ -92,6 +92,54 @@ const PROPERTIES: Array[Dictionary] = [
 		"perk": "Private lift. +5% job credits.", "position": Vector3(118, 0, -90), "size": Vector3(8, 11, 8), "style": "penthouse"},
 ]
 
+## Premium Shop: the Ninja Legendary & Mythic weapon collection, paid in Aether (premium currency).
+const PREMIUM_CLASS := "Ninja"
+const PREMIUM_RARITIES: Array[String] = ["All", "Rare", "Legendary", "Mythic"]
+const PREMIUM_WEAPONS: Array[Dictionary] = [
+	{"id": "phantom_flame", "name": "The Phantom Flame", "rarity": "Rare", "damage_min": 40, "damage_max": 65, "price": 750, "limited": false,
+		"image": "res://assets/premium/ninja/phantom_flame.jpg",
+		"desc": "A blade made of nothing but flickering red light and smoke. No weight, no sound, only the glow. It's there until it isn't."},
+	{"id": "prisma_guard", "name": "The Prisma-Guard", "rarity": "Legendary", "damage_min": 70, "damage_max": 85, "price": 1800, "limited": false, "note": "Will be modelled as a small ninja dagger.",
+		"image": "res://assets/premium/ninja/prisma_guard.jpg",
+		"desc": "A compact, geometric dark-alloy dagger lined with blinding cyan light. Small enough to hide in a fold of cloth, yet sharp enough to slip through defenses like a shard of frozen starlight."},
+	{"id": "last_honour", "name": "The Last Honour", "rarity": "Mythic", "damage_min": 100, "damage_max": 110, "price": 2600, "limited": true,
+		"image": "res://assets/premium/ninja/last_honour.jpg",
+		"desc": "Hand-forged steel etched with the words of its maker, a reminder that true strength comes from what you protect, not what you conquer."},
+	{"id": "ember_guardian", "name": "The Ember Guardian", "rarity": "Legendary", "damage_min": 54, "damage_max": 63, "price": 1450, "limited": false,
+		"image": "res://assets/premium/ninja/ember_guardian.jpg",
+		"desc": "Weathered iron and warm bronze, an ancient blade passed down through forgotten generations. It doesn't need to shine to be deadly."},
+	{"id": "the_ruin", "name": "The Ruin", "rarity": "Mythic", "damage_min": 55, "damage_max": 65, "price": 1800, "limited": false,
+		"image": "res://assets/premium/ninja/the_ruin.jpg",
+		"desc": "Four points of blessed steel, etched with swirling ancient scrollwork. It catches the light even in deepest shadow, a promise that some things remain unbroken."},
+	{"id": "ember_scythe", "name": "The Ember-Scythe", "rarity": "Legendary", "damage_min": 48, "damage_max": 56, "price": 950, "limited": false,
+		"image": "res://assets/premium/ninja/ember_scythe.jpg",
+		"desc": "Three curved blades of dark obsidian, veins of molten gold glowing along every edge. Spins through the air like a falling star: silent, burning, and impossible to catch."},
+	{"id": "the_crescent", "name": "The Crescent", "rarity": "Legendary", "damage_min": 45, "damage_max": 52, "price": 880, "limited": false,
+		"image": "res://assets/premium/ninja/the_crescent.jpg",
+		"desc": "Three graceful blades of pale steel and gold, inlaid with soft cyan light. Balanced and true, it always finds its mark, then returns to the hand like a whisper on the wind."},
+	{"id": "thunder_chain", "name": "The Thunder Chain", "rarity": "Legendary", "damage_min": 52, "damage_max": 60, "price": 1600, "limited": false,
+		"image": "res://assets/premium/ninja/thunder_chain.jpg",
+		"desc": "A flexible ring of linked axe-blades crackling with electric blue energy. Spins wide, strikes fast; the storm itself seems to turn where it swings."},
+	{"id": "dragons_breath", "name": "The Dragon's Breath", "rarity": "Mythic", "damage_min": 72, "damage_max": 85, "price": 3200, "limited": false,
+		"image": "res://assets/premium/ninja/dragons_breath.jpg",
+		"desc": "Jagged flame-shaped blade of silver and obsidian, etched with ancient red script. Hilt carved like a golden dragon's head: fierce, legendary, unyielding. Only one exists in Nova Aetheris."},
+	{"id": "starlit_edge", "name": "The Starlit Edge", "rarity": "Legendary", "damage_min": 58, "damage_max": 68, "price": 1800, "limited": false,
+		"image": "res://assets/premium/ninja/starlit_edge.jpg",
+		"desc": "Sleek black blade glowing with pure cyan light along its edge. It doesn't just cut, it feels like it passes through space itself. Quiet, precise, and impossibly sharp."},
+	{"id": "starfall_dagger", "name": "The Starfall Dagger", "rarity": "Legendary", "damage_min": 36, "damage_max": 44, "price": 1100, "limited": false,
+		"image": "res://assets/premium/ninja/starfall_dagger.jpg",
+		"desc": "A blade of pale crystal holding swirling violet mist at its heart. Hilt blooms like a dark rose, soft pink light pulsing from within. It doesn't just cut; it feels like it pulls something loose."},
+	{"id": "golden_razor", "name": "The Golden Razor", "rarity": "Legendary", "damage_min": 38, "damage_max": 45, "price": 680, "limited": false,
+		"image": "res://assets/premium/ninja/golden_razor.jpg",
+		"desc": "Sharp, polished gold shaped like a jagged R: sleek, heavy, and catches the light like a mirror. It cuts before you even see it coming."},
+]
+
+static func premium_weapon(id: String) -> Dictionary:
+	for w in PREMIUM_WEAPONS:
+		if w["id"] == id:
+			return w
+	return {}
+
 ## Armory catalogue for the Spire store. required_rank gates the two-step purchase rule.
 const GEAR: Array[Dictionary] = [
 	{"id": "obsidian_edge", "name": "Obsidian Edge", "tier": "Mythic", "class": "Swordsman",

@@ -5,6 +5,8 @@ extends Node
 
 signal credits_changed(new_amount: int)
 signal points_changed(new_amount: int)
+signal aether_changed(new_amount: int)
+signal premium_purchased(weapon_id: String)
 signal class_changed(new_class: String)
 signal property_purchased(property_id: String)
 signal gear_purchased(gear_id: String)
@@ -16,6 +18,9 @@ const CLASS_SNIPER := "Sniper"
 
 var credits: int = 2500
 var points: int = 0
+## Premium currency (Premium Shop). Test balance so the shop can be exercised in the prototype.
+var aether: int = 3000
+var owned_premium: Array[String] = []
 var selected_class: String = CLASS_SWORDSMAN
 var owned_properties: Array[String] = []
 var owned_gear: Array[String] = []
@@ -55,6 +60,33 @@ func spend_points(amount: int) -> bool:
 		return false
 	points -= amount
 	points_changed.emit(points)
+	return true
+
+
+func add_aether(amount: int) -> void:
+	aether = maxi(0, aether + amount)
+	aether_changed.emit(aether)
+
+
+func spend_aether(amount: int) -> bool:
+	if aether < amount:
+		return false
+	aether -= amount
+	aether_changed.emit(aether)
+	return true
+
+
+func owns_premium(weapon_id: String) -> bool:
+	return owned_premium.has(weapon_id)
+
+
+func buy_premium(weapon_id: String, price: int) -> bool:
+	if owns_premium(weapon_id):
+		return false
+	if not spend_aether(price):
+		return false
+	owned_premium.append(weapon_id)
+	premium_purchased.emit(weapon_id)
 	return true
 
 
