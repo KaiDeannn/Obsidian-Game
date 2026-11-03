@@ -16,6 +16,7 @@ signal block_state(is_blocking: bool, parried: bool)
 signal shot_fired()
 signal reloading(duration: float)
 signal died()
+signal weapon_changed(weapon: Dictionary)
 
 const MAG_SIZE := 5
 const BULLET_SPEED := 600.0
@@ -192,12 +193,18 @@ func _apply_class_visuals() -> void:
 
 # ------------------------------------------------------------------ premium weapon
 func _apply_weapon() -> void:
-	if weapon.is_empty():
-		return
+	if is_instance_valid(_held_weapon):
+		_held_weapon.queue_free()
+		_held_weapon = null
+	var cs0 := hitbox.get_child(0) as CollisionShape3D
+	(cs0.shape as BoxShape3D).size.z = 2.2
+	hitbox.position.z = -1.3
 	for part in ["Blade", "BladeEdge", "Guard", "Grip"]:
 		var n := sword_pivot.get_node_or_null(part)
 		if n:
-			n.visible = false
+			n.visible = weapon.is_empty()
+	if weapon.is_empty():
+		return
 	_held_weapon = WeaponModels.build(weapon)
 	if WeaponModels.is_thrown(weapon):
 		_held_weapon.position = Vector3(0, 0, -0.35)
@@ -207,6 +214,17 @@ func _apply_weapon() -> void:
 		var cs := hitbox.get_child(0) as CollisionShape3D
 		(cs.shape as BoxShape3D).size.z *= 1.4
 		hitbox.position.z = -1.6
+
+
+## Q in the Spire: swap to the next ninja weapon without redeploying.
+func cycle_weapon(step: int) -> void:
+	if combat_class != GameState.CLASS_SWORDSMAN or _blade_out or _attacking or _sweeping:
+		return
+	GameState.cycle_premium(step)
+	weapon = GameState.equipped_weapon()
+	_strike_count = 0
+	_apply_weapon()
+	weapon_changed.emit(weapon)
 
 
 func _trait() -> String:

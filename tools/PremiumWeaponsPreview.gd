@@ -66,18 +66,17 @@ func _run() -> void:
 	await _wait(0.4)
 	var rig: CameraRig = city.get_node("CameraRig")
 	_phone = city.get_node("PhoneUI")
-	GameState.add_aether(9000)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	await _fade_to(0.0, 0.8)
 	await _show_card("Premium Weapons", "OBSIDIAN  -  NINJA LEGENDARY & MYTHIC", [
-		"Twelve weapons from the design document, sold for Aether",
+		"Twelve weapons from the design document, all in your arsenal",
 		"Equip one and fight with it in the Spire",
 	], 4.0)
 
-	_show_caption("Premium Shop", "A new PREMIUM app on the phone. Artwork, rarity, damage range, price in Aether and each weapon's trait.")
+	_show_caption("Weapons app", "A WEAPONS app on the phone: artwork, rarity, damage range and each weapon's trait.")
 	_phone.open("home")
 	await _wait(1.0)
-	await _tap_page("PREMIUM", 0, 1.2)
+	await _tap_page("WEAPONS", 0, 1.2)
 	await _wait(1.2)
 	var sc := _page_scroll()
 	var bottom: int = int(sc.get_v_scroll_bar().max_value) if sc else 4000
@@ -86,10 +85,9 @@ func _run() -> void:
 	await _scroll_to(0, 1.6)
 	await _hide_caption()
 
-	_show_caption("Buy and equip", "Buy with a confirm step. The first weapon equips itself; any owned weapon can be equipped from here.")
-	await _tap_page("Buy", 0, 1.0)
-	await _tap_page("Confirm", 0, 1.6)
-	await _wait(1.6)
+	_show_caption("Equip", "Tap Equip on any weapon. In the Spire, Q cycles through them mid-fight.")
+	await _tap_page("Equip", 0, 1.6)
+	await _wait(1.4)
 	await _hide_caption()
 
 	_show_caption("Carried in the city", "The equipped weapon rides on your back while you roam Nova Aetheris.")
@@ -112,8 +110,6 @@ func _run() -> void:
 		_dummies.append(_spire.get_node("Enemies/Dummy%d" % i))
 	var base: Vector3 = (_dummies[0] as TrainingDummy).global_position
 	(_dummies[3] as TrainingDummy).global_position = base + Vector3(3.0, 0, 0)
-	for wid in ["dragons_breath", "starlit_edge", "starfall_dagger", "thunder_chain", "the_crescent", "the_ruin", "golden_razor", "ember_scythe", "last_honour", "prisma_guard"]:
-		GameState.buy_premium(wid, int(CityData.premium_weapon(wid)["price"]))
 	_pad_all()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	await _fade_to(0.0, 0.5)
@@ -218,7 +214,7 @@ func _run() -> void:
 	await _hide_caption()
 
 	await _show_card("Premium Weapons: shipped", "OBSIDIAN  -  PHONE UPDATE 3", [
-		"Shop, Aether, equip, carried in the city",
+		"Weapons app, equip, Q to cycle, carried in the city",
 		"Twelve weapons with their own damage and traits in the Spire",
 	], 4.0)
 	await _fade_to(1.0, 0.7)

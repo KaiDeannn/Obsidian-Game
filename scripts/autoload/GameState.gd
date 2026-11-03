@@ -5,8 +5,6 @@ extends Node
 
 signal credits_changed(new_amount: int)
 signal points_changed(new_amount: int)
-signal aether_changed(new_amount: int)
-signal premium_purchased(weapon_id: String)
 signal premium_equipped(weapon_id: String)
 signal class_changed(new_class: String)
 signal property_purchased(property_id: String)
@@ -19,9 +17,7 @@ const CLASS_SNIPER := "Sniper"
 
 var credits: int = 2500
 var points: int = 0
-## Premium currency (Premium Shop). Test balance so the shop can be exercised in the prototype.
-var aether: int = 3000
-var owned_premium: Array[String] = []
+## Ninja weapons (CityData.PREMIUM_WEAPONS). All twelve are available; one is equipped.
 ## Premium weapon carried into the Spire (Swordsman) and shown on the player's back in the city.
 var equipped_premium: String = ""
 var selected_class: String = CLASS_SWORDSMAN
@@ -66,42 +62,28 @@ func spend_points(amount: int) -> bool:
 	return true
 
 
-func add_aether(amount: int) -> void:
-	aether = maxi(0, aether + amount)
-	aether_changed.emit(aether)
-
-
-func spend_aether(amount: int) -> bool:
-	if aether < amount:
-		return false
-	aether -= amount
-	aether_changed.emit(aether)
-	return true
-
-
 func owns_premium(weapon_id: String) -> bool:
-	return owned_premium.has(weapon_id)
+	return not CityData.premium_weapon(weapon_id).is_empty()
 
 
-func buy_premium(weapon_id: String, price: int) -> bool:
-	if owns_premium(weapon_id):
-		return false
-	if not spend_aether(price):
-		return false
-	owned_premium.append(weapon_id)
-	premium_purchased.emit(weapon_id)
-	if equipped_premium == "":
-		equip_premium(weapon_id)
-	return true
-
-
-## Equip an owned premium weapon ("" to unequip and go back to the standard sword).
+## Equip one of the ninja weapons ("" to go back to the standard sword).
 func equip_premium(weapon_id: String) -> bool:
 	if weapon_id != "" and not owns_premium(weapon_id):
 		return false
 	equipped_premium = weapon_id
 	premium_equipped.emit(weapon_id)
 	return true
+
+
+## Next / previous weapon in the catalogue (wraps; the standard sword sits between the ends).
+func cycle_premium(step: int) -> String:
+	var ids: Array = [""]
+	for w in CityData.PREMIUM_WEAPONS:
+		ids.append(w["id"])
+	var i := ids.find(equipped_premium)
+	var nxt: String = ids[(i + step + ids.size()) % ids.size()]
+	equip_premium(nxt)
+	return nxt
 
 
 func equipped_weapon() -> Dictionary:
@@ -189,7 +171,7 @@ func _ensure_input_actions() -> void:
 	var key_actions := {
 		"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D,
 		"sprint": KEY_SHIFT, "jump": KEY_SPACE, "interact": KEY_E, "phone": KEY_P,
-		"reload": KEY_R, "store": KEY_B, "class_1": KEY_1, "class_2": KEY_2,
+		"reload": KEY_R, "store": KEY_B, "class_1": KEY_1, "class_2": KEY_2, "weapon_next": KEY_Q,
 	}
 	for action: String in key_actions:
 		if not InputMap.has_action(action):

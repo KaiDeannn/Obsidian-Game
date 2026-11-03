@@ -48,14 +48,14 @@ func _test_progression() -> void:
 	_check(not JobManager.has_active(), "job completes after visiting every stage")
 	_check(GameState.credits == before + 300 + 15, "job pays 300 cr + 5% property perk")
 	_check(RankManager.renown == 150, "job pays 150 renown")
-	# premium shop
-	_check(CityData.PREMIUM_WEAPONS.size() == 12, "12 ninja premium weapons in the catalogue")
-	_check(not GameState.buy_premium("dragons_breath", 3200), "cannot afford Dragon's Breath on the starting Aether")
-	_check(GameState.buy_premium("golden_razor", 680) and GameState.aether == 3000 - 680, "buys The Golden Razor for 680 Aether")
-	_check(not GameState.buy_premium("golden_razor", 680), "cannot buy a premium weapon twice")
-	_check(GameState.equipped_premium == "golden_razor", "first premium purchase auto-equips")
+	# ninja weapons: all available, equip and cycle
+	_check(CityData.PREMIUM_WEAPONS.size() == 12, "12 ninja weapons in the arsenal")
+	_check(GameState.owns_premium("dragons_breath"), "every ninja weapon is available without buying")
+	_check(GameState.equip_premium("golden_razor") and GameState.equipped_premium == "golden_razor", "equips The Golden Razor")
+	_check(GameState.cycle_premium(1) == "" and GameState.equipped_premium == "", "cycling past the last weapon returns to the standard sword")
+	_check(GameState.cycle_premium(1) == "phantom_flame", "cycling from the sword picks the first ninja weapon")
 	_check(GameState.equip_premium("") and GameState.equipped_premium == "", "unequip returns to the standard sword")
-	_check(not GameState.equip_premium("dragons_breath"), "cannot equip an unowned weapon")
+	_check(not GameState.equip_premium("not_a_weapon"), "cannot equip an unknown weapon")
 
 
 func _test_city() -> void:
@@ -100,8 +100,8 @@ func _test_city() -> void:
 	phone.show_page("jobs")
 	_check(phone._pages["jobs"].get_child_count() >= 2, "jobs app lists tasks")
 	phone.show_page("property")
-	phone.show_page("premium")
-	_check(phone._pages["premium"].get_child_count() >= 2, "premium shop page builds")
+	phone.show_page("weapons")
+	_check(phone._pages["weapons"].get_child_count() >= 2, "weapons page builds")
 	phone.show_page("stats")
 	phone.toggle()
 	_check(not phone.is_open, "phone closes")
@@ -222,9 +222,6 @@ func _wait_seconds(sec: float) -> void:
 
 func _test_premium_weapons() -> void:
 	print("\n[Premium weapons in the Spire]")
-	GameState.add_aether(20000)
-	for wid in ["last_honour", "the_ruin", "thunder_chain", "dragons_breath", "the_crescent"]:
-		GameState.buy_premium(wid, int(CityData.premium_weapon(wid)["price"]))
 	var spire: Node3D = load("res://scenes/spire/SpireRuins.tscn").instantiate()
 	add_child(spire)
 	await _frames(5)
@@ -256,6 +253,12 @@ func _test_premium_weapons() -> void:
 	player.hp = 50.0
 	player.on_takedown()
 	_check(player.hp == 75.0, "The Last Honour heals 25 on a takedown")
+	# --- Q swaps weapons live without redeploying (wait for the swing to finish first)
+	await _frames(30)
+	GameState.equip_premium("")
+	player.cycle_weapon(1)
+	_check(player.weapon.get("id", "") == "phantom_flame" and player.sword_pivot.get_node_or_null("Weapon_phantom_flame") != null, "Q cycles to the next weapon in hand")
+	_check(hud._weapon_label.text.begins_with("The Phantom Flame"), "HUD follows the weapon swap")
 	# --- thrown weapon that returns (The Crescent)
 	GameState.equip_premium("the_crescent")
 	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)

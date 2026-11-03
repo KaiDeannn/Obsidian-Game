@@ -92,7 +92,7 @@ const PROPERTIES: Array[Dictionary] = [
 		"perk": "Private lift. +5% job credits.", "position": Vector3(118, 0, -90), "size": Vector3(8, 11, 8), "style": "penthouse"},
 ]
 
-## Premium Shop: the Ninja Legendary & Mythic weapon collection, paid in Aether (premium currency).
+## The Ninja Legendary & Mythic weapon collection (price/limited kept from the document for display).
 const PREMIUM_CLASS := "Ninja"
 const PREMIUM_RARITIES: Array[String] = ["All", "Rare", "Legendary", "Mythic"]
 const PREMIUM_WEAPONS: Array[Dictionary] = [

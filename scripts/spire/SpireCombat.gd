@@ -47,6 +47,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			hud.toggle_pause()
 	elif event.is_action_pressed("store"):
 		hud.toggle_store()
+	elif event.is_action_pressed("weapon_next") and is_instance_valid(player) and not hud.is_overlay_open():
+		player.cycle_weapon(1)
+		var w := player.weapon
+		hud.toast(("Weapon: %s" % w["name"]) if not w.is_empty() else "Weapon: standard sword", UIKit.rarity_color(w["rarity"]) if not w.is_empty() else UIKit.TEXT_DIM)
 	elif event is InputEventMouseButton and event.pressed and not hud.is_overlay_open() and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

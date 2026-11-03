@@ -271,22 +271,29 @@ func bind_player(p: SpirePlayer) -> void:
 	p.hit_landed.connect(_on_hit)
 	p.block_state.connect(_on_block)
 	p.reloading.connect(func(d: float) -> void: _state_label.text = "RELOADING"; get_tree().create_timer(d).timeout.connect(func() -> void: if _state_label.text == "RELOADING": _state_label.text = ""))
+	p.weapon_changed.connect(func(_w: Dictionary) -> void: _refresh_weapon_line())
 	var is_sword := p.combat_class == GameState.CLASS_SWORDSMAN
 	_class_label.text = p.combat_class.to_upper()
 	_class_label.add_theme_color_override("font_color", UIKit.ACCENT2 if is_sword else UIKit.ACCENT)
 	_ammo_label.visible = not is_sword
-	_state_label.text = "MELEE  -  RMB to block" if is_sword else "RMB to aim"
-	var w := p.weapon
+	_refresh_weapon_line()
+	_on_health(p.hp, p.max_hp)
+	_on_ammo(p.ammo, p.reserve)
+
+
+func _refresh_weapon_line() -> void:
+	if _player == null:
+		return
+	var is_sword := _player.combat_class == GameState.CLASS_SWORDSMAN
+	var w := _player.weapon
 	if is_sword and not w.is_empty():
 		_weapon_label.text = "%s   DMG %d-%d   %s" % [w["name"], int(w["damage_min"]), int(w["damage_max"]), w["trait_desc"]]
 		_weapon_label.add_theme_color_override("font_color", UIKit.rarity_color(w["rarity"]))
-		if WeaponModels.is_thrown(w):
-			_state_label.text = "THROWN  -  LMB to throw, RMB to block"
+		_state_label.text = ("THROWN  -  LMB to throw, RMB to block" if WeaponModels.is_thrown(w) else "MELEE  -  RMB to block") + "  -  Q next weapon"
 	else:
-		_weapon_label.text = "Standard sword   DMG 38" if is_sword else "Voidpiercer rifle"
+		_weapon_label.text = "Standard sword   DMG 38  -  Q for ninja weapons" if is_sword else "Voidpiercer rifle"
 		_weapon_label.add_theme_color_override("font_color", UIKit.TEXT_DIM)
-	_on_health(p.hp, p.max_hp)
-	_on_ammo(p.ammo, p.reserve)
+		_state_label.text = "MELEE  -  RMB to block" if is_sword else "RMB to aim"
 
 
 func _on_health(hp: float, max_hp: float) -> void:

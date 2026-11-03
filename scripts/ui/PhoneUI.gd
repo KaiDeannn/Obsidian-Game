@@ -35,8 +35,7 @@ var _pages: Dictionary = {}
 var _tween: Tween
 var _confirm_property_id := ""
 var _confirm_vehicle_id := ""
-var _confirm_premium_id := ""
-var _premium_rarity := "All"
+var _weapons_rarity := "All"
 
 # comms
 var _msg_input: LineEdit
@@ -82,7 +81,7 @@ func _ready() -> void:
 	JobManager.job_completed.connect(func(_j: Dictionary, _c: int, _r: int) -> void: _refresh_if_open("jobs"); _refresh_if_open("stats"))
 	JobManager.job_cancelled.connect(func(_j: Dictionary) -> void: _refresh_if_open("jobs"))
 	GameState.credits_changed.connect(func(_v: int) -> void: _refresh_if_open("stats"); _refresh_if_open("property"); _refresh_if_open("garage"))
-	GameState.aether_changed.connect(func(_v: int) -> void: _refresh_if_open("stats"); _refresh_if_open("premium"))
+	GameState.premium_equipped.connect(func(_id: String) -> void: _refresh_if_open("stats"); _refresh_if_open("weapons"))
 	GameState.vehicle_damage_changed.connect(func(_id: String, _d: int) -> void: _refresh_if_open("garage"); _refresh_valet_panel())
 	RankManager.renown_changed.connect(func(_v: int, _g: int) -> void: _refresh_if_open("stats"))
 	Session.players_changed.connect(func() -> void: _refresh_if_open("contacts"))
@@ -184,7 +183,7 @@ func _build() -> void:
 	UIKit.full_rect(home_btn)
 	_screen.add_child(home_wrap)
 
-	for page_name in ["home", "jobs", "property", "stats", "contacts", "messages", "garage", "premium"]:
+	for page_name in ["home", "jobs", "property", "stats", "contacts", "messages", "garage", "weapons"]:
 		var page := UIKit.vbox(0)
 		page.visible = false
 		_page_host.add_child(page)
@@ -346,7 +345,7 @@ func _rebuild(page_name: String) -> void:
 		"contacts": _build_contacts(page)
 		"messages": _build_messages(page)
 		"garage": _build_garage(page)
-		"premium": _build_premium(page)
+		"weapons": _build_weapons(page)
 
 
 func _header(page: VBoxContainer, title: String, subtitle: String, back_to := "home") -> void:
@@ -440,7 +439,7 @@ func _build_home(page: VBoxContainer) -> void:
 	var unread := Session.unread_total()
 	_app_icon(grid, "CALLS" if unread == 0 else "CALLS (%d)" % unread, "Players & contacts", UIKit.GREEN if unread == 0 else UIKit.AMBER, "contacts")
 	_app_icon(grid, "GARAGE", "Vehicles & valet", UIKit.AMBER, "garage")
-	_app_icon(grid, "PREMIUM", "Ninja weapons", UIKit.rarity_color("Mythic"), "premium")
+	_app_icon(grid, "WEAPONS", "Ninja arsenal", UIKit.rarity_color("Mythic"), "weapons")
 	var tip := UIKit.wrapped("Tip: call Rook in CALLS and he will valet any car you own to wherever you are standing.", 12, UIKit.TEXT_DIM)
 	v.add_child(tip)
 
@@ -595,8 +594,6 @@ func _build_stats(page: VBoxContainer) -> void:
 	_stat_row(list, "Properties owned", str(GameState.owned_properties.size()), UIKit.GREEN)
 	_stat_row(list, "Vehicles owned", str(GameState.owned_vehicles.size()), UIKit.AMBER)
 	_stat_row(list, "Gear owned", str(GameState.owned_gear.size()), UIKit.TEXT)
-	_stat_row(list, "Aether", UIKit.fmt_int(GameState.aether), UIKit.rarity_color("Mythic"))
-	_stat_row(list, "Premium weapons", str(GameState.owned_premium.size()), UIKit.rarity_color("Legendary"))
 	var eqw := GameState.equipped_weapon()
 	_stat_row(list, "Equipped weapon", str(eqw["name"]) if not eqw.is_empty() else "Standard sword", UIKit.TEXT)
 
@@ -1167,31 +1164,36 @@ func _build_garage(page: VBoxContainer) -> void:
 		_add_card(list, card)
 
 
-# ================================================================ PREMIUM SHOP (Ninja Legendary & Mythic)
-func _build_premium(page: VBoxContainer) -> void:
-	_header(page, "Premium Shop", "Ninja Legendary & Mythic collection  -  paid in Aether")
+# ================================================================ WEAPONS (Ninja Legendary & Mythic)
+func _build_weapons(page: VBoxContainer) -> void:
+	_header(page, "Weapons", "Ninja Legendary & Mythic arsenal  -  pick what you carry")
 	var list := _scroll(page)
-	list.add_child(UIKit.label("Aether balance: %s" % UIKit.fmt_int(GameState.aether), 13, UIKit.rarity_color("Mythic")))
 	var eqw := GameState.equipped_weapon()
-	list.add_child(UIKit.wrapped("Equipped: %s. The Swordsman carries it into the Spire; it rides on your back in the city." % (str(eqw["name"]) if not eqw.is_empty() else "standard sword"), 11, UIKit.TEXT_DIM))
+	list.add_child(UIKit.wrapped("Equipped: %s. The Swordsman fights with it in the Spire (Q cycles weapons there); it rides on your back in the city." % (str(eqw["name"]) if not eqw.is_empty() else "standard sword"), 11, UIKit.TEXT_DIM))
 	var chips := HFlowContainer.new()
 	chips.add_theme_constant_override("h_separation", 6)
 	for opt in CityData.PREMIUM_RARITIES:
 		var value: String = opt
 		var b := UIKit.button(value, UIKit.rarity_color(value) if value != "All" else UIKit.ACCENT, 12, 28)
-		b.disabled = value == _premium_rarity
+		b.disabled = value == _weapons_rarity
 		b.pressed.connect(func() -> void:
-			_premium_rarity = value
-			_rebuild("premium"))
+			_weapons_rarity = value
+			_rebuild("weapons"))
 		chips.add_child(b)
 	list.add_child(chips)
+	if GameState.equipped_premium != "":
+		var sword := UIKit.button("Use the standard sword", UIKit.TEXT_DIM, 12, 30)
+		sword.pressed.connect(func() -> void:
+			GameState.equip_premium("")
+			_rebuild("weapons"))
+		list.add_child(sword)
 	for w in CityData.PREMIUM_WEAPONS:
-		if _premium_rarity != "All" and w["rarity"] != _premium_rarity:
+		if _weapons_rarity != "All" and w["rarity"] != _weapons_rarity:
 			continue
 		var wid: String = w["id"]
 		var rcol := UIKit.rarity_color(w["rarity"])
-		var owned := GameState.owns_premium(wid)
-		var card := _card(Color(UIKit.GREEN.r, UIKit.GREEN.g, UIKit.GREEN.b, 0.5) if owned else Color(rcol.r, rcol.g, rcol.b, 0.5))
+		var equipped := GameState.equipped_premium == wid
+		var card := _card(Color(UIKit.GREEN.r, UIKit.GREEN.g, UIKit.GREEN.b, 0.6) if equipped else Color(rcol.r, rcol.g, rcol.b, 0.5))
 		var art := TextureRect.new()
 		art.texture = load(w["image"])
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -1201,11 +1203,14 @@ func _build_premium(page: VBoxContainer) -> void:
 		var top := UIKit.hbox(6)
 		top.add_child(UIKit.label(w["name"], 16, UIKit.TEXT))
 		top.add_child(UIKit.spacer())
+		if equipped:
+			top.add_child(UIKit.tag("EQUIPPED", UIKit.GREEN, 10))
 		top.add_child(UIKit.tag(str(w["rarity"]).to_upper(), rcol, 10))
 		card.add_child(top)
 		var meta := UIKit.hbox(6)
 		meta.add_child(UIKit.tag(CityData.PREMIUM_CLASS.to_upper(), UIKit.TEXT_DIM, 10))
 		meta.add_child(UIKit.tag("DMG %d-%d" % [int(w["damage_min"]), int(w["damage_max"])], UIKit.RED, 10))
+		meta.add_child(UIKit.tag("THROWN" if WeaponModels.is_thrown(w) else "MELEE", UIKit.TEXT_DIM, 10))
 		if w["limited"]:
 			meta.add_child(UIKit.tag("LIMITED RELEASE", UIKit.AMBER, 10))
 		card.add_child(meta)
@@ -1213,46 +1218,11 @@ func _build_premium(page: VBoxContainer) -> void:
 		card.add_child(UIKit.wrapped("Trait: %s" % w["trait_desc"], 11, rcol))
 		if w.has("note"):
 			card.add_child(UIKit.wrapped(w["note"], 11, UIKit.TEXT_DIM))
-		var price: int = int(w["price"])
-		if owned:
-			var equipped := GameState.equipped_premium == wid
-			var row := UIKit.hbox(8)
-			row.add_child(UIKit.tag("EQUIPPED" if equipped else "OWNED", UIKit.GREEN, 10))
-			row.add_child(UIKit.spacer())
-			var eq := UIKit.button("Unequip" if equipped else "Equip", UIKit.TEXT_DIM if equipped else rcol, 12, 30)
-			eq.custom_minimum_size = Vector2(90, 30)
-			eq.pressed.connect(func() -> void:
-				GameState.equip_premium("" if equipped else wid)
-				_rebuild("premium"))
-			row.add_child(eq)
-			card.add_child(row)
-		elif _confirm_premium_id == wid:
-			card.add_child(UIKit.wrapped("Buy %s for %s Aether?" % [w["name"], UIKit.fmt_int(price)], 12, UIKit.TEXT))
-			var row := UIKit.hbox(8)
-			var yes := UIKit.button("Confirm", UIKit.GREEN, 13, 32)
-			yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			yes.pressed.connect(func() -> void:
-				_confirm_premium_id = ""
-				if GameState.buy_premium(wid, price):
-					notified.emit("%s is yours." % w["name"], rcol)
-				else:
-					_flash_error("Not enough Aether")
-				_rebuild("premium"))
-			var no := UIKit.button("Back", UIKit.TEXT_DIM, 13, 32)
-			no.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			no.pressed.connect(func() -> void:
-				_confirm_premium_id = ""
-				_rebuild("premium"))
-			row.add_child(yes)
-			row.add_child(no)
-			card.add_child(row)
-		else:
-			var buy := UIKit.button("Buy  -  %s Aether" % UIKit.fmt_int(price), rcol, 13, 32)
-			buy.disabled = GameState.aether < price
-			if buy.disabled:
-				buy.text = "Need %s more Aether" % UIKit.fmt_int(price - GameState.aether)
-			buy.pressed.connect(func() -> void:
-				_confirm_premium_id = wid
-				_rebuild("premium"))
-			card.add_child(buy)
+		var eq := UIKit.button("Equipped" if equipped else "Equip", UIKit.GREEN if equipped else rcol, 13, 32)
+		eq.disabled = equipped
+		eq.pressed.connect(func() -> void:
+			GameState.equip_premium(wid)
+			notified.emit("%s equipped." % w["name"], rcol)
+			_rebuild("weapons"))
+		card.add_child(eq)
 		_add_card(list, card)
