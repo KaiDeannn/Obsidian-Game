@@ -111,7 +111,6 @@ func _build_model() -> void:
 		_model.add_child(_arm)
 		Palette.box(_arm, Vector3(0.18, 0.9, 0.18), Vector3(0, -0.45, 0), _body_mat, false, "ArmR")
 		Palette.box(_arm, Vector3(0.06, 1.1, 0.16), Vector3(0, -1.2, -0.2), Palette.glow(Palette.RED, 1.2), false, "Blade")
-	Palette.label3d(_model, "TRAINING TARGET" if kind == Kind.DUMMY else "HUNTER UNIT", Vector3(0, 2.7, 0), Palette.RED if kind == Kind.HUNTER else Palette.AMBER, 28, 0.03)
 
 
 func _now() -> float:
