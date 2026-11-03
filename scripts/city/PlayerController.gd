@@ -52,6 +52,24 @@ func _build_model() -> void:
 	Palette.box(model, Vector3(0.4, 0.55, 0.22), Vector3(0, 1.05, 0.3), Palette.mat(Color(0.08, 0.08, 0.1), 0.7), false, "Pack")
 	for sx in [-0.18, 0.18]:
 		Palette.box(model, Vector3(0.16, 0.5, 0.2), Vector3(sx, 0.28, 0), suit, false, "Leg")
+	_refresh_back_weapon()
+	GameState.premium_equipped.connect(func(_id: String) -> void: _refresh_back_weapon())
+
+
+## The equipped premium weapon rides diagonally across the pack.
+func _refresh_back_weapon() -> void:
+	var old := model.get_node_or_null("BackWeapon")
+	if old:
+		old.queue_free()
+	var w := GameState.equipped_weapon()
+	if w.is_empty():
+		return
+	var mount := Node3D.new()
+	mount.name = "BackWeapon"
+	mount.position = Vector3(0.1, 1.5, 0.45)
+	mount.rotation = Vector3(-PI * 0.5, 0.0, -0.5) if not WeaponModels.is_thrown(w) else Vector3(PI * 0.5, 0.0, 0.0)
+	mount.add_child(WeaponModels.build(w))
+	model.add_child(mount)
 
 
 func _physics_process(delta: float) -> void:

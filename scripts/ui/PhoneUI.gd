@@ -597,6 +597,8 @@ func _build_stats(page: VBoxContainer) -> void:
 	_stat_row(list, "Gear owned", str(GameState.owned_gear.size()), UIKit.TEXT)
 	_stat_row(list, "Aether", UIKit.fmt_int(GameState.aether), UIKit.rarity_color("Mythic"))
 	_stat_row(list, "Premium weapons", str(GameState.owned_premium.size()), UIKit.rarity_color("Legendary"))
+	var eqw := GameState.equipped_weapon()
+	_stat_row(list, "Equipped weapon", str(eqw["name"]) if not eqw.is_empty() else "Standard sword", UIKit.TEXT)
 
 
 func _stat_row(list: VBoxContainer, title: String, value: String, color: Color) -> void:
@@ -1170,6 +1172,8 @@ func _build_premium(page: VBoxContainer) -> void:
 	_header(page, "Premium Shop", "Ninja Legendary & Mythic collection  -  paid in Aether")
 	var list := _scroll(page)
 	list.add_child(UIKit.label("Aether balance: %s" % UIKit.fmt_int(GameState.aether), 13, UIKit.rarity_color("Mythic")))
+	var eqw := GameState.equipped_weapon()
+	list.add_child(UIKit.wrapped("Equipped: %s. The Swordsman carries it into the Spire; it rides on your back in the city." % (str(eqw["name"]) if not eqw.is_empty() else "standard sword"), 11, UIKit.TEXT_DIM))
 	var chips := HFlowContainer.new()
 	chips.add_theme_constant_override("h_separation", 6)
 	for opt in CityData.PREMIUM_RARITIES:
@@ -1206,11 +1210,22 @@ func _build_premium(page: VBoxContainer) -> void:
 			meta.add_child(UIKit.tag("LIMITED RELEASE", UIKit.AMBER, 10))
 		card.add_child(meta)
 		card.add_child(UIKit.wrapped(w["desc"], 12))
+		card.add_child(UIKit.wrapped("Trait: %s" % w["trait_desc"], 11, rcol))
 		if w.has("note"):
 			card.add_child(UIKit.wrapped(w["note"], 11, UIKit.TEXT_DIM))
 		var price: int = int(w["price"])
 		if owned:
-			card.add_child(UIKit.tag("OWNED", UIKit.GREEN, 10))
+			var equipped := GameState.equipped_premium == wid
+			var row := UIKit.hbox(8)
+			row.add_child(UIKit.tag("EQUIPPED" if equipped else "OWNED", UIKit.GREEN, 10))
+			row.add_child(UIKit.spacer())
+			var eq := UIKit.button("Unequip" if equipped else "Equip", UIKit.TEXT_DIM if equipped else rcol, 12, 30)
+			eq.custom_minimum_size = Vector2(90, 30)
+			eq.pressed.connect(func() -> void:
+				GameState.equip_premium("" if equipped else wid)
+				_rebuild("premium"))
+			row.add_child(eq)
+			card.add_child(row)
 		elif _confirm_premium_id == wid:
 			card.add_child(UIKit.wrapped("Buy %s for %s Aether?" % [w["name"], UIKit.fmt_int(price)], 12, UIKit.TEXT))
 			var row := UIKit.hbox(8)

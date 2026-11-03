@@ -7,6 +7,7 @@ signal credits_changed(new_amount: int)
 signal points_changed(new_amount: int)
 signal aether_changed(new_amount: int)
 signal premium_purchased(weapon_id: String)
+signal premium_equipped(weapon_id: String)
 signal class_changed(new_class: String)
 signal property_purchased(property_id: String)
 signal gear_purchased(gear_id: String)
@@ -21,6 +22,8 @@ var points: int = 0
 ## Premium currency (Premium Shop). Test balance so the shop can be exercised in the prototype.
 var aether: int = 3000
 var owned_premium: Array[String] = []
+## Premium weapon carried into the Spire (Swordsman) and shown on the player's back in the city.
+var equipped_premium: String = ""
 var selected_class: String = CLASS_SWORDSMAN
 var owned_properties: Array[String] = []
 var owned_gear: Array[String] = []
@@ -87,7 +90,22 @@ func buy_premium(weapon_id: String, price: int) -> bool:
 		return false
 	owned_premium.append(weapon_id)
 	premium_purchased.emit(weapon_id)
+	if equipped_premium == "":
+		equip_premium(weapon_id)
 	return true
+
+
+## Equip an owned premium weapon ("" to unequip and go back to the standard sword).
+func equip_premium(weapon_id: String) -> bool:
+	if weapon_id != "" and not owns_premium(weapon_id):
+		return false
+	equipped_premium = weapon_id
+	premium_equipped.emit(weapon_id)
+	return true
+
+
+func equipped_weapon() -> Dictionary:
+	return CityData.premium_weapon(equipped_premium) if equipped_premium != "" else {}
 
 
 # ---------------------------------------------------------------- class

@@ -24,6 +24,7 @@ func _ready() -> void:
 	await _test_progression()
 	await _test_city()
 	await _test_comms_valet()
+	await _test_premium_weapons()
 	await _test_spire()
 	await _test_rank_modal()
 	print("\nSMOKE TEST %s  (%d failure(s))" % ["PASSED" if _failures == 0 else "FAILED", _failures])
@@ -52,6 +53,9 @@ func _test_progression() -> void:
 	_check(not GameState.buy_premium("dragons_breath", 3200), "cannot afford Dragon's Breath on the starting Aether")
 	_check(GameState.buy_premium("golden_razor", 680) and GameState.aether == 3000 - 680, "buys The Golden Razor for 680 Aether")
 	_check(not GameState.buy_premium("golden_razor", 680), "cannot buy a premium weapon twice")
+	_check(GameState.equipped_premium == "golden_razor", "first premium purchase auto-equips")
+	_check(GameState.equip_premium("") and GameState.equipped_premium == "", "unequip returns to the standard sword")
+	_check(not GameState.equip_premium("dragons_breath"), "cannot equip an unowned weapon")
 
 
 func _test_city() -> void:
@@ -214,6 +218,93 @@ func _test_comms_valet() -> void:
 
 func _wait_seconds(sec: float) -> void:
 	await get_tree().create_timer(sec, true).timeout
+
+
+func _test_premium_weapons() -> void:
+	print("\n[Premium weapons in the Spire]")
+	GameState.add_aether(20000)
+	for wid in ["last_honour", "the_ruin", "thunder_chain", "dragons_breath", "the_crescent"]:
+		GameState.buy_premium(wid, int(CityData.premium_weapon(wid)["price"]))
+	var spire: Node3D = load("res://scenes/spire/SpireRuins.tscn").instantiate()
+	add_child(spire)
+	await _frames(5)
+	var hud: SpireHUD = spire.get_node("SpireHUD")
+	# use the far dummies with padded health so nothing dies here (kills would shift the
+	# renown totals the [Spire] section asserts on)
+	var dummy: TrainingDummy = spire.get_node("Enemies/Dummy5")
+	var dummy2: TrainingDummy = spire.get_node("Enemies/Dummy6")
+	var dummy3: TrainingDummy = spire.get_node("Enemies/Dummy7")
+	for dmy in [dummy, dummy2, dummy3]:
+		dmy.hp = 1000.0
+	# --- blade with a damage range + takedown heal (The Last Honour)
+	GameState.equip_premium("last_honour")
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _frames(2)
+	var player: SpirePlayer = spire.player
+	_check(player.weapon.get("id", "") == "last_honour", "swordsman deploys with the equipped premium weapon")
+	_check(player.sword_pivot.get_node_or_null("Weapon_last_honour") != null, "weapon model is in the player's hand")
+	_check(hud._weapon_label.text.begins_with("The Last Honour"), "HUD shows the weapon, damage and trait")
+	var d := player.strike_damage()
+	_check(d >= 100.0 and d <= 110.0, "strike damage drawn from the 100-110 range (%.0f)" % d)
+	player.global_position = dummy.global_position + Vector3(0, 0, 2.2)
+	player.rotation.y = 0.0
+	await _frames(2)
+	var hp0 := dummy.hp
+	player._swing()
+	await _frames(12)
+	_check(dummy.hp <= hp0 - 100.0, "premium blade hit lands for 100+ (%.0f -> %.0f)" % [hp0, dummy.hp])
+	player.hp = 50.0
+	player.on_takedown()
+	_check(player.hp == 75.0, "The Last Honour heals 25 on a takedown")
+	# --- thrown weapon that returns (The Crescent)
+	GameState.equip_premium("the_crescent")
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _frames(2)
+	player = spire.player
+	_check(WeaponModels.is_thrown(player.weapon), "The Crescent is a thrown weapon")
+	player.global_position = dummy2.global_position + Vector3(0, 0, 6.0)
+	player.rotation.y = 0.0
+	player.pivot.rotation.x = 0.0
+	await _frames(2)
+	var hp2 := dummy2.hp
+	player._throw()
+	_check(player._blade_out, "thrown blade leaves the hand")
+	await _frames(40)
+	_check(dummy2.hp < hp2, "thrown Crescent damages the target (%.0f -> %.0f)" % [hp2, dummy2.hp])
+	var waited := 0
+	while player._blade_out and waited < 240:
+		await _frames(10)
+		waited += 10
+	_check(not player._blade_out, "Crescent returns to the hand")
+	# --- Thunder Chain sweep hits everything close
+	GameState.equip_premium("thunder_chain")
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _frames(2)
+	player = spire.player
+	dummy.hp = 1000.0
+	dummy2.hp = 1000.0
+	dummy2.global_position = dummy.global_position + Vector3(3.0, 0, 0)
+	player.global_position = dummy.global_position + Vector3(1.5, 0, 1.5)
+	await _frames(2)
+	player._sweep()
+	await _frames(2)
+	_check(dummy.hp < 1000.0 and dummy2.hp < 1000.0, "Thunder Chain sweep hits two enemies at once")
+	# --- Dragon's Breath flame wave on the third strike
+	GameState.equip_premium("dragons_breath")
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _frames(2)
+	player = spire.player
+	dummy3.hp = 1000.0
+	player.global_position = dummy3.global_position + Vector3(0, 0, 4.5)
+	player.rotation.y = 0.0
+	await _frames(2)
+	player._strike_count = 2
+	player._swing()
+	await _frames(3)
+	_check(dummy3.hp < 1000.0, "Dragon's Breath flame wave reaches a target 4.5 m away")
+	GameState.equip_premium("")
+	spire.queue_free()
+	await _frames(2)
 
 
 func _test_spire() -> void:

@@ -24,6 +24,7 @@ var _health_label: Label
 var _ammo_label: Label
 var _class_label: Label
 var _state_label: Label
+var _weapon_label: Label
 var _points_label: Label
 var _renown_label: Label
 var _rank_label: Label
@@ -155,6 +156,8 @@ func _build_combat_hud() -> void:
 	_state_label = UIKit.label("", 12, UIKit.TEXT_DIM)
 	top.add_child(_state_label)
 	sv.add_child(top)
+	_weapon_label = UIKit.label("", 12, UIKit.TEXT_DIM)
+	sv.add_child(_weapon_label)
 	_health_bar = UIKit.progress(1.0, UIKit.GREEN, 14)
 	sv.add_child(_health_bar)
 	var hrow := UIKit.hbox(8)
@@ -273,6 +276,15 @@ func bind_player(p: SpirePlayer) -> void:
 	_class_label.add_theme_color_override("font_color", UIKit.ACCENT2 if is_sword else UIKit.ACCENT)
 	_ammo_label.visible = not is_sword
 	_state_label.text = "MELEE  -  RMB to block" if is_sword else "RMB to aim"
+	var w := p.weapon
+	if is_sword and not w.is_empty():
+		_weapon_label.text = "%s   DMG %d-%d   %s" % [w["name"], int(w["damage_min"]), int(w["damage_max"]), w["trait_desc"]]
+		_weapon_label.add_theme_color_override("font_color", UIKit.rarity_color(w["rarity"]))
+		if WeaponModels.is_thrown(w):
+			_state_label.text = "THROWN  -  LMB to throw, RMB to block"
+	else:
+		_weapon_label.text = "Standard sword   DMG 38" if is_sword else "Voidpiercer rifle"
+		_weapon_label.add_theme_color_override("font_color", UIKit.TEXT_DIM)
 	_on_health(p.hp, p.max_hp)
 	_on_ammo(p.ammo, p.reserve)
 

@@ -90,6 +90,8 @@ func _on_enemy_defeated(dummy: TrainingDummy) -> void:
 	match_renown += dummy.renown_reward
 	GameState.add_points(dummy.points_reward)
 	RankManager.add_renown(dummy.renown_reward)
+	if is_instance_valid(player):
+		player.on_takedown()
 	hud.reward_popup("+%d PTS   +%d RENOWN" % [dummy.points_reward, dummy.renown_reward])
 	if kills % 5 == 0:
 		hud.toast("Takedown streak: %d   Match total: %d pts / %d renown" % [kills, match_points, match_renown], UIKit.GREEN)
