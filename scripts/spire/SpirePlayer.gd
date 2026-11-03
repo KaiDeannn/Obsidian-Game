@@ -250,7 +250,7 @@ func _apply_hit(body: Node3D) -> void:
 		if body is CharacterBody3D:
 			(body as CharacterBody3D).velocity += pull.normalized() * 7.0
 		if body.has_method("stagger"):
-			body.stagger()
+			body.stagger("PULLED")
 	hit_landed.emit(body, dmg, false)
 
 
@@ -258,10 +258,10 @@ func _flame_wave() -> void:
 	var fwd := -global_transform.basis.z
 	var color: Color = weapon["color"]
 	var wave := Palette.sphere(get_tree().current_scene, 1.0, Vector3.ZERO, Palette.translucent_glow(color, 0.45, 3.0), "FlameWave")
-	wave.global_position = global_position + Vector3(0, 1.0, 0) + fwd * 1.5
+	wave.global_position = global_position + Vector3(0, 1.0, 0) + fwd * 3.5
 	wave.scale = Vector3(0.6, 0.4, 0.6)
 	var tw := wave.create_tween()
-	tw.tween_property(wave, "scale", Vector3(5.0, 1.2, 6.5), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(wave, "scale", Vector3(4.0, 1.0, 4.5), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw.parallel().tween_property(wave, "transparency", 1.0, 0.45)
 	tw.tween_callback(wave.queue_free)
 	for e in get_tree().get_nodes_in_group("enemy"):

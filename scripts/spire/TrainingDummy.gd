@@ -224,7 +224,7 @@ func _strike(dist: float) -> void:
 
 
 ## Called by the player on a successful parry.
-func stagger() -> void:
+func stagger(label := "PARRIED") -> void:
 	if not alive:
 		return
 	state = State.STAGGER
@@ -235,7 +235,7 @@ func stagger() -> void:
 	tw.tween_property(_model, "rotation:x", 0.35, 0.1)
 	tw.tween_property(_model, "rotation:x", 0.0, 0.6).set_trans(Tween.TRANS_BOUNCE)
 	tw.tween_callback(func() -> void: _eye_mat.emission = Palette.RED)
-	_floating_text("PARRIED", Palette.CYAN, global_position + Vector3(0, 2.4, 0))
+	_floating_text(label, Palette.CYAN, global_position + Vector3(0, 2.4, 0))
 
 
 func take_damage(amount: float, hit_pos: Vector3, headshot: bool, source: Node3D = null) -> void:
