@@ -13,6 +13,8 @@ var _portal_mat: StandardMaterial3D
 var _ring: Node3D
 var _time := 0.0
 var _travelling := false
+var _match_pending := false
+var _match_label := ""
 
 
 func _ready() -> void:
@@ -58,6 +60,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		travel()
 
 
+func set_match_pending(on: bool, label: String) -> void:
+	_match_pending = on
+	_match_label = label
+	if _inside and not _travelling:
+		prompt_changed.emit(_prompt_text())
+
+
+func _prompt_text() -> String:
+	if _match_pending:
+		return "YOUR PORTAL  -  Press [E] to enter the %s" % _match_label
+	return "SPIRE GATE  -  Press [E] to travel to The Spire Ruins"
+
+
 func travel() -> void:
 	_travelling = true
 	prompt_changed.emit("Transit engaged...")
@@ -72,7 +87,7 @@ func _on_body_entered(body: Node3D) -> void:
 		if body is VehicleController and not body.has_driver():
 			return
 		_inside = true
-		prompt_changed.emit("SPIRE GATE  -  Press [E] to travel to The Spire Ruins")
+		prompt_changed.emit(_prompt_text())
 
 
 func _on_body_exited(body: Node3D) -> void:

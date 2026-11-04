@@ -36,6 +36,9 @@ var _tween: Tween
 var _confirm_property_id := ""
 var _confirm_vehicle_id := ""
 var _weapons_rarity := "All"
+var _battle_mode := "solo"
+var _battle_map := "ruins"
+var _battle_allies: Array = []
 
 # comms
 var _msg_input: LineEdit
@@ -82,6 +85,8 @@ func _ready() -> void:
 	JobManager.job_cancelled.connect(func(_j: Dictionary) -> void: _refresh_if_open("jobs"))
 	GameState.credits_changed.connect(func(_v: int) -> void: _refresh_if_open("stats"); _refresh_if_open("property"); _refresh_if_open("garage"))
 	GameState.premium_equipped.connect(func(_id: String) -> void: _refresh_if_open("stats"); _refresh_if_open("weapons"))
+	Battle.match_ready.connect(func(_m: Dictionary) -> void: _refresh_if_open("battles"); _refresh_if_open("home"))
+	Battle.match_cleared.connect(func() -> void: _refresh_if_open("battles"); _refresh_if_open("home"))
 	GameState.vehicle_damage_changed.connect(func(_id: String, _d: int) -> void: _refresh_if_open("garage"); _refresh_valet_panel())
 	RankManager.renown_changed.connect(func(_v: int, _g: int) -> void: _refresh_if_open("stats"))
 	Session.players_changed.connect(func() -> void: _refresh_if_open("contacts"))
@@ -183,7 +188,7 @@ func _build() -> void:
 	UIKit.full_rect(home_btn)
 	_screen.add_child(home_wrap)
 
-	for page_name in ["home", "jobs", "property", "stats", "contacts", "messages", "garage", "weapons"]:
+	for page_name in ["home", "jobs", "property", "stats", "contacts", "messages", "garage", "weapons", "battles"]:
 		var page := UIKit.vbox(0)
 		page.visible = false
 		_page_host.add_child(page)
@@ -346,6 +351,7 @@ func _rebuild(page_name: String) -> void:
 		"messages": _build_messages(page)
 		"garage": _build_garage(page)
 		"weapons": _build_weapons(page)
+		"battles": _build_battles(page)
 
 
 func _header(page: VBoxContainer, title: String, subtitle: String, back_to := "home") -> void:
@@ -440,6 +446,7 @@ func _build_home(page: VBoxContainer) -> void:
 	_app_icon(grid, "CALLS" if unread == 0 else "CALLS (%d)" % unread, "Players & contacts", UIKit.GREEN if unread == 0 else UIKit.AMBER, "contacts")
 	_app_icon(grid, "GARAGE", "Vehicles & valet", UIKit.AMBER, "garage")
 	_app_icon(grid, "WEAPONS", "Ninja arsenal", UIKit.rarity_color("Mythic"), "weapons")
+	_app_icon(grid, "BATTLES" if not Battle.has_pending() else "MATCH READY", "Solo, tournament, clan war", UIKit.RED if not Battle.has_pending() else UIKit.GREEN, "battles")
 	var tip := UIKit.wrapped("Tip: call Rook in CALLS and he will valet any car you own to wherever you are standing.", 12, UIKit.TEXT_DIM)
 	v.add_child(tip)
 
@@ -591,6 +598,11 @@ func _build_stats(page: VBoxContainer) -> void:
 	_stat_row(list, "Combat class", GameState.selected_class, UIKit.TEXT)
 	_stat_row(list, "Jobs completed", str(GameState.jobs_completed), UIKit.TEXT)
 	_stat_row(list, "Spire takedowns", str(GameState.kills), UIKit.TEXT)
+	var wins := 0
+	for r in Battle.history:
+		if r["won"]:
+			wins += 1
+	_stat_row(list, "Battles won", "%d / %d" % [wins, Battle.history.size()], UIKit.RED)
 	_stat_row(list, "Properties owned", str(GameState.owned_properties.size()), UIKit.GREEN)
 	_stat_row(list, "Vehicles owned", str(GameState.owned_vehicles.size()), UIKit.AMBER)
 	_stat_row(list, "Gear owned", str(GameState.owned_gear.size()), UIKit.TEXT)
@@ -1226,3 +1238,134 @@ func _build_weapons(page: VBoxContainer) -> void:
 			_rebuild("weapons"))
 		card.add_child(eq)
 		_add_card(list, card)
+
+
+# ================================================================ BATTLES (match setup)
+func _build_battles(page: VBoxContainer) -> void:
+	_header(page, "Battles", "Solo battles, tournaments and clan wars  -  Rank %s only" % RankManager.rank_letter())
+	var list := _scroll(page)
+	if Battle.has_pending():
+		var m := Battle.pending
+		var card := _card(Color(UIKit.GREEN.r, UIKit.GREEN.g, UIKit.GREEN.b, 0.6))
+		card.add_child(UIKit.label("MATCH READY", 11, UIKit.GREEN))
+		card.add_child(UIKit.label("%s  -  %s" % [m["mode_name"], m["map_name"]], 18, UIKit.TEXT))
+		card.add_child(UIKit.wrapped(m["message"], 13, UIKit.TEXT))
+		card.add_child(UIKit.wrapped("Map: %s." % m["map_rule"], 11, UIKit.TEXT_DIM))
+		var opp_names: Array = []
+		for o in m["opponents"]:
+			opp_names.append("%s (%s, Rank %s)" % [o["name"], o["class"], o["rank"]])
+		card.add_child(UIKit.wrapped(("Opponents: " if m["opponents"].size() > 1 else "Opponent: ") + ", ".join(opp_names), 12))
+		if not m["allies"].is_empty():
+			var ally_names: Array = []
+			for a in m["allies"]:
+				ally_names.append("%s (%s)" % [a["name"], a["class"]])
+			card.add_child(UIKit.wrapped("Your side: you, " + ", ".join(ally_names), 12))
+		card.add_child(UIKit.wrapped("Your portal is the Spire Gate at the north edge of the city. Press E there to enter.", 12, UIKit.TEXT_DIM))
+		var cancel := UIKit.button("Cancel match", UIKit.RED, 13, 32)
+		cancel.pressed.connect(func() -> void:
+			Battle.clear()
+			notified.emit("Match cancelled.", UIKit.TEXT_DIM)
+			_rebuild("battles"))
+		card.add_child(cancel)
+		_add_card(list, card)
+		return
+
+	_section(list, "MATCH TYPE")
+	var modes := UIKit.hbox(6)
+	for mode_id in ["solo", "tournament", "clan_war"]:
+		var mid: String = mode_id
+		var b := UIKit.button(Battle.mode_info(mid)["name"], UIKit.RED if mid == _battle_mode else UIKit.TEXT_DIM, 12, 30)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.pressed.connect(func() -> void:
+			_battle_mode = mid
+			_rebuild("battles"))
+		modes.add_child(b)
+	list.add_child(modes)
+	var info := Battle.mode_info(_battle_mode)
+	var mcard := _card(Color(UIKit.RED.r, UIKit.RED.g, UIKit.RED.b, 0.45))
+	mcard.add_child(UIKit.label(info["name"], 17, UIKit.TEXT))
+	mcard.add_child(UIKit.wrapped(info["desc"], 12))
+	mcard.add_child(UIKit.wrapped("Golden Rule: you only fight opponents of exactly your rank (%s). Any class can fight any class." % RankManager.rank_letter(), 11, UIKit.TEXT_DIM))
+	var rew := UIKit.hbox(6)
+	rew.add_child(UIKit.tag("WIN +%d RENOWN" % int(info["win_renown"]), UIKit.ACCENT2, 10))
+	rew.add_child(UIKit.tag("+%d PTS" % int(info["win_points"]), UIKit.ACCENT, 10))
+	mcard.add_child(rew)
+	_add_card(list, mcard)
+
+	if _battle_mode == "tournament":
+		_section(list, "TOURNAMENT TIERS")
+		var tiers := UIKit.hbox(6)
+		for tier in RankManager.RANKS:
+			var t: String = tier
+			var ok := Battle.can_enter_tournament(t)
+			var tb := UIKit.button(("Rank %s" % t) if ok else ("%s  locked" % t), UIKit.GREEN if ok else UIKit.TEXT_DIM, 11, 28)
+			tb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			tb.disabled = not ok
+			tiers.add_child(tb)
+		list.add_child(tiers)
+		list.add_child(UIKit.wrapped("You can only enter the tournament for your own tier. Eliminated fighters spectate until the match ends.", 11, UIKit.TEXT_DIM))
+
+	if _battle_mode == "clan_war":
+		_section(list, "%s  -  PICK UP TO 4 MEMBERS (YOU MAKE FIVE)" % str(BattleData.CLAN["name"]).to_upper())
+		for m in BattleData.CLAN_MEMBERS:
+			var name: String = m["name"]
+			var eligible: bool = m["online"] and m["rank"] == RankManager.rank_letter()
+			var picked := _battle_allies.has(name)
+			var row := UIKit.hbox(8)
+			var col := UIKit.vbox(0)
+			col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			col.add_child(UIKit.label(name, 14, UIKit.TEXT if eligible else UIKit.TEXT_DIM))
+			var why := "%s  -  Rank %s  -  %s" % [m["class"], m["rank"], "online" if m["online"] else "offline"]
+			if not eligible:
+				why += "  (not at this tier)" if m["online"] else ""
+			col.add_child(UIKit.label(why, 10, UIKit.TEXT_DIM))
+			row.add_child(col)
+			var pick := UIKit.button("Picked" if picked else "Pick", UIKit.GREEN if picked else UIKit.ACCENT, 11, 28)
+			pick.custom_minimum_size = Vector2(76, 28)
+			pick.disabled = not eligible or (not picked and _battle_allies.size() >= 4)
+			pick.pressed.connect(func() -> void:
+				if picked:
+					_battle_allies.erase(name)
+				else:
+					_battle_allies.append(name)
+				_rebuild("battles"))
+			row.add_child(pick)
+			list.add_child(row)
+		list.add_child(UIKit.wrapped("Both clan leaders agree the tier, pick members who are online at that rank, and choose a map. Rival: %s." % BattleData.CLAN["rival"], 11, UIKit.TEXT_DIM))
+
+	_section(list, "PREFERRED BATTLEFIELD")
+	for mp in BattleData.MAPS:
+		var mid: String = mp["id"]
+		var chosen := _battle_map == mid
+		var mc := _card(Color(UIKit.ACCENT.r, UIKit.ACCENT.g, UIKit.ACCENT.b, 0.6) if chosen else Color(1, 1, 1, 0.08))
+		var top := UIKit.hbox(8)
+		top.add_child(UIKit.label(mp["name"], 15, UIKit.TEXT))
+		top.add_child(UIKit.spacer())
+		if chosen:
+			top.add_child(UIKit.tag("PREFERRED", UIKit.ACCENT, 10))
+		mc.add_child(top)
+		mc.add_child(UIKit.wrapped(mp["desc"], 11))
+		if not chosen:
+			var pb := UIKit.button("Prefer this map", UIKit.ACCENT, 12, 28)
+			pb.pressed.connect(func() -> void:
+				_battle_map = mid
+				_rebuild("battles"))
+			mc.add_child(pb)
+		_add_card(list, mc)
+	list.add_child(UIKit.wrapped("If your opponent prefers a different map, the system picks one at random.", 11, UIKit.TEXT_DIM))
+
+	var go := UIKit.button("Find match", UIKit.RED, 15, 40)
+	go.pressed.connect(func() -> void:
+		var m := Battle.setup_match(_battle_mode, _battle_map, _battle_allies)
+		if not m.is_empty():
+			notified.emit(m["message"], UIKit.GREEN)
+			close()
+		_rebuild("battles"))
+	list.add_child(go)
+	if not Battle.last_result.is_empty():
+		var r := Battle.last_result
+		var lc := _card()
+		lc.add_child(UIKit.label("LAST MATCH", 11, UIKit.TEXT_DIM))
+		lc.add_child(UIKit.label("%s on %s  -  %s" % [r["mode_name"], r["map_name"], "VICTORY" if r["won"] else "DEFEAT"], 14, UIKit.GREEN if r["won"] else UIKit.RED))
+		lc.add_child(UIKit.label("+%d renown   +%d points" % [int(r["renown"]), int(r["points"])], 12, UIKit.TEXT_DIM))
+		_add_card(list, lc)

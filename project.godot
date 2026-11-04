@@ -25,6 +25,8 @@ JobManager="*res://scripts/autoload/JobManager.gd"
 RankModal="*res://scenes/ui/RankModal.tscn"
 Session="*res://scripts/autoload/Session.gd"
 Valet="*res://scripts/autoload/Valet.gd"
+Cinematic="*res://scripts/autoload/Cinematic.gd"
+Battle="*res://scripts/autoload/BattleManager.gd"
 
 [display]
 

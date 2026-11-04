@@ -193,6 +193,7 @@ func _build_overlay() -> void:
 # ====================================================================== the show
 func _run() -> void:
 	# ---------------------------------------------------------------- CITY
+	GameState.intro_played = true
 	var city: Node3D = CITY_SCENE.instantiate()
 	add_child(city)
 	await _wait(0.3)

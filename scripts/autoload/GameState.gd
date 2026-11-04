@@ -29,6 +29,8 @@ var jobs_completed: int = 0
 var kills: int = 0
 ## When true, the city scene spawns the player at the Spire gate (returning from battle).
 var arrival_from_spire: bool = false
+## The opening cinematic plays once per session; tools and tests set this to skip it.
+var intro_played: bool = false
 
 
 func _ready() -> void:

@@ -61,6 +61,7 @@ func _run() -> void:
 	_overlay.move_child(_cursor, _overlay.get_child_count() - 2)
 
 	# ---------------------------------------------------------------- city + shop
+	GameState.intro_played = true
 	var city: Node3D = CITY_SCENE.instantiate()
 	add_child(city)
 	await _wait(0.4)

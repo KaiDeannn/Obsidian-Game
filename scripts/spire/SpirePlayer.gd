@@ -82,6 +82,7 @@ func setup(cls: String) -> void:
 
 
 func _ready() -> void:
+	add_to_group("players")       # AI fighters find their target through this group
 	hp = max_hp
 	collision_layer = Palette.LAYER_PLAYER
 	collision_mask = Palette.LAYER_WORLD | Palette.LAYER_ENEMY

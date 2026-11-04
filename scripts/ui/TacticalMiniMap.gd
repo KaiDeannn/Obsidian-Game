@@ -53,7 +53,14 @@ func _draw_overlay(c: CanvasItem) -> void:
 	# Spire centre marker.
 	if is_within(Vector3.ZERO):
 		draw_diamond(c, world_to_map(Vector3.ZERO), 5.0, UIKit.ACCENT2)
+	# Allies (clan war): always shown in cyan, no LOS needed - they are on your side.
+	for ally in get_tree().get_nodes_in_group("ally"):
+		if ally is Node3D and ally.get("alive") != false and is_within(ally.global_position):
+			var ap := world_to_map(ally.global_position)
+			c.draw_circle(ap, 4.0, UIKit.ACCENT)
+			draw_arrow(c, ap, RadarMap.heading_2d(ally), 5.0, UIKit.ACCENT)
 	# Enemies: visible only with line of sight; brief fade for ones that just broke LOS.
+	# Dot colour reports the weapon category (document: Vision System).
 	var visible_count := 0
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not (enemy is Node3D) or enemy.get("alive") == false:
@@ -71,6 +78,9 @@ func _draw_overlay(c: CanvasItem) -> void:
 		var pt := world_to_map(enemy.global_position)
 		var is_hunter: bool = enemy.get("kind") == TrainingDummy.Kind.HUNTER
 		var col := UIKit.RED if is_hunter else UIKit.AMBER
+		var cat: Variant = enemy.get("weapon_category")
+		if cat is String and BattleData.WEAPON_COLORS.has(cat):
+			col = BattleData.WEAPON_COLORS[cat]
 		col.a = alpha
 		if seen:
 			visible_count += 1

@@ -7,6 +7,10 @@ class_name SpireArenaBuilder
 
 const HALF := 60.0
 
+## Which battlefield to build: "ruins" (default), "rooftop", "forest" (BattleData.MAPS).
+## Set by the pending match, else the training ground is the Ruins.
+var map_id := "ruins"
+
 var _rng := RandomNumberGenerator.new()
 var mat_floor: StandardMaterial3D
 var mat_stone: StandardMaterial3D
@@ -32,6 +36,18 @@ func _ready() -> void:
 	mat_crack = Palette.glow(Palette.VIOLET, 2.6)
 	mat_fire = Palette.glow(Palette.AMBER, 3.5)
 	mat_hazard = Palette.glow(Palette.AMBER, 1.0)
+	if Battle.has_pending():
+		map_id = str(Battle.pending.get("map", "ruins"))
+	match map_id:
+		"rooftop":
+			_build_rooftop()
+		"forest":
+			_build_forest()
+		_:
+			_build_ruins()
+
+
+func _build_ruins() -> void:
 	_build_floor()
 	_build_walls()
 	_build_spire()
@@ -44,6 +60,84 @@ func _ready() -> void:
 	_build_rubble()
 	_build_braziers()
 	Palette.label3d(self, "CENTRAL PLAZA", Vector3(0, 36, 0), Palette.VIOLET, 110, 0.06)
+	_build_zone_labels()
+
+
+## Class zones from the design document, marked where the layout provides them.
+func _build_zone_labels() -> void:
+	Palette.label3d(self, "MID-TIER BALCONIES", Vector3(-40, 13, 40), Palette.AMBER, 36, 0.035)
+	Palette.label3d(self, "MID-TIER BALCONIES", Vector3(40, 13, -40), Palette.AMBER, 36, 0.035)
+	Palette.label3d(self, "SHADOW CORRIDORS", Vector3(-22, 10, 0), Palette.VIOLET, 36, 0.035)
+	Palette.label3d(self, "SHADOW CORRIDORS", Vector3(22, 10, 0), Palette.VIOLET, 36, 0.035)
+	Palette.label3d(self, "RAMP ENTRANCES", Vector3(0, 6, 16), Palette.AMBER, 32, 0.035)
+	Palette.label3d(self, "CHOKEPOINT", Vector3(-7.5, 8, -HALF), Palette.RED, 32, 0.035)
+	Palette.label3d(self, "CHOKEPOINT", Vector3(HALF, 8, 22.5), Palette.RED, 32, 0.035)
+
+
+## Rooftop Arena: five roofs at different heights joined by ramps; long sightlines, short cover.
+func _build_rooftop() -> void:
+	mat_floor = Palette.mat(Color(0.16, 0.16, 0.18), 0.95)
+	Palette.box(self, Vector3(HALF * 2 + 12, 0.4, HALF * 2 + 12), Vector3(0, -0.2, 0), mat_floor, true, "Street")
+	_build_walls()
+	var decks := [[Vector3(0, 0, 0), 26.0, 8.0], [Vector3(34, 0, 34), 18.0, 5.0], [Vector3(-34, 0, 34), 18.0, 11.0], [Vector3(34, 0, -34), 18.0, 11.0], [Vector3(-34, 0, -34), 18.0, 6.0]]
+	for d in decks:
+		var c: Vector3 = d[0]
+		var size: float = d[1]
+		var h: float = d[2]
+		Palette.box(self, Vector3(size, h, size), c + Vector3(0, h * 0.5, 0), mat_stone_dark, true, "Roof")
+		Palette.box(self, Vector3(size + 0.2, 0.3, size + 0.2), c + Vector3(0, h + 0.15, 0), mat_stone, true, "RoofTop")
+		# parapets and AC units for cover
+		for sx in [-1.0, 1.0]:
+			Palette.box(self, Vector3(size, 1.0, 0.5), c + Vector3(0, h + 0.8, sx * (size * 0.5 - 0.25)), mat_stone, true, "Parapet")
+			Palette.box(self, Vector3(0.5, 1.0, size), c + Vector3(sx * (size * 0.5 - 0.25), h + 0.8, 0), mat_stone, true, "Parapet")
+		for k in range(3):
+			var p := c + Vector3(_rng.randf_range(-size * 0.3, size * 0.3), h + 1.0, _rng.randf_range(-size * 0.3, size * 0.3))
+			Palette.box(self, Vector3(2.4, 1.6, 2.0), p, mat_metal, true, "ACUnit")
+		var toward := (Vector3.ZERO - c)
+		toward.y = 0.0
+		if toward.length() > 1.0:
+			var yaw := atan2(toward.normalized().x, toward.normalized().z) + PI
+			_ramp(self, c + toward.normalized() * (size * 0.5) + Vector3(0, h, 0), yaw, h * 2.2, h, 4.5)
+		else:
+			for k in range(4):
+				var yaw := k * PI * 0.5
+				_ramp(self, Vector3(0, h, size * 0.5 - 0.5).rotated(Vector3.UP, yaw), yaw, h * 2.0, h, 5.0)
+		Palette.omni(self, c + Vector3(0, h + 3.0, 0), Palette.CYAN, 1.4, 18.0)
+	_build_braziers()
+	Palette.label3d(self, "ROOFTOP ARENA", Vector3(0, 40, 0), Palette.CYAN, 110, 0.06)
+	Palette.label3d(self, "HIGH SPIRES", Vector3(-34, 19, 34), Palette.CYAN, 36, 0.035)
+	Palette.label3d(self, "HIGH SPIRES", Vector3(34, 19, -34), Palette.CYAN, 36, 0.035)
+	Palette.label3d(self, "RAMP ENTRANCES", Vector3(0, 14, 0), Palette.AMBER, 36, 0.035)
+
+
+## Forest Arena: dense trunks with canopies and fallen logs. Short sightlines, ambush ground.
+func _build_forest() -> void:
+	mat_floor = Palette.mat(Color(0.18, 0.23, 0.14), 0.98)
+	Palette.box(self, Vector3(HALF * 2 + 12, 0.4, HALF * 2 + 12), Vector3(0, -0.2, 0), mat_floor, true, "Ground")
+	_build_walls()
+	var trunk := Palette.mat(Color(0.3, 0.2, 0.12), 0.95)
+	var leaf := Palette.mat(Color(0.12, 0.3, 0.14), 0.9)
+	var leaf_dark := Palette.mat(Color(0.08, 0.2, 0.1), 0.9)
+	for k in range(70):
+		var p := Vector3(_rng.randf_range(-54, 54), 0, _rng.randf_range(-54, 54))
+		if p.length() < 9.0 or (absf(p.x) < 5.0 and p.z > 30.0):
+			continue
+		var h := _rng.randf_range(6.0, 10.0)
+		Palette.cylinder(self, _rng.randf_range(0.45, 0.8), h, p + Vector3(0, h * 0.5, 0), trunk, true, "Trunk", 8)
+		Palette.sphere(self, _rng.randf_range(2.6, 4.0), p + Vector3(0, h + 0.5, 0), leaf if k % 2 == 0 else leaf_dark, "Canopy")
+	for k in range(14):
+		var p := Vector3(_rng.randf_range(-48, 48), 0.6, _rng.randf_range(-48, 48))
+		if p.length() < 10.0:
+			continue
+		var log := Palette.cylinder(self, 0.6, _rng.randf_range(4.0, 7.0), p, trunk, true, "Log", 8)
+		log.rotation = Vector3(0, _rng.randf_range(0, TAU), PI * 0.5)
+	Palette.cylinder(self, 6.0, 0.6, Vector3(0, 0.3, 0), mat_stone, true, "Shrine", 8)
+	Palette.sphere(self, 0.9, Vector3(0, 2.2, 0), Palette.glow(Palette.VIOLET, 3.0), "ShrineCore")
+	Palette.omni(self, Vector3(0, 4.0, 0), Palette.VIOLET, 2.5, 20.0)
+	_build_braziers()
+	Palette.label3d(self, "FOREST ARENA", Vector3(0, 30, 0), Palette.GREEN, 110, 0.06)
+	Palette.label3d(self, "SHADOW CORRIDORS", Vector3(-30, 12, 0), Palette.VIOLET, 36, 0.035)
+	Palette.label3d(self, "SHADOW CORRIDORS", Vector3(30, 12, 0), Palette.VIOLET, 36, 0.035)
 
 
 func _build_floor() -> void:
@@ -183,7 +277,7 @@ func _build_vantage(center: Vector3, ramp_yaw: float) -> void:
 	var edge := center + toward * (size * 0.5) + Vector3(0, h, 0)
 	_ramp(self, edge, ramp_yaw, 16.0, h, 4.0)
 	Palette.omni(self, center + Vector3(0, h + 3.0, 0), Palette.CYAN, 1.6, 16.0)
-	Palette.label3d(self, "VANTAGE", center + Vector3(0, h + 6.0, 0), Palette.CYAN, 40, 0.035)
+	Palette.label3d(self, "HIGH SPIRES", center + Vector3(0, h + 6.0, 0), Palette.CYAN, 40, 0.035)
 
 
 func _build_ruin_shell(center: Vector3) -> void:

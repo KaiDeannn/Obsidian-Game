@@ -8,6 +8,7 @@ signal class_chosen(combat_class: String)
 signal overlay_changed(open: bool)
 signal return_to_city
 signal change_class_requested
+signal rematch_requested
 
 var minimap: TacticalMiniMap
 var store: StoreUI
@@ -25,6 +26,10 @@ var _ammo_label: Label
 var _class_label: Label
 var _state_label: Label
 var _weapon_label: Label
+var _match_label: Label
+var _banner_label: Label
+var _results: Control
+var _results_box: VBoxContainer
 var _points_label: Label
 var _renown_label: Label
 var _rank_label: Label
@@ -104,6 +109,7 @@ func _ready() -> void:
 	_build_combat_hud()
 	_build_class_select()
 	_build_pause()
+	_build_results()
 	store = StoreUI.new()
 	store.closed.connect(func() -> void: overlay_changed.emit(false))
 	add_child(store)
@@ -179,6 +185,16 @@ func _build_combat_hud() -> void:
 	stats.offset_bottom = 90
 	var srow := UIKit.hbox(22)
 	stats.add_child(srow)
+	_match_label = UIKit.label("", 13, UIKit.TEXT)
+	_match_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_match_label.visible = false
+	_root.add_child(_match_label)
+	_match_label.anchor_left = 0.5
+	_match_label.anchor_right = 0.5
+	_match_label.offset_left = -360
+	_match_label.offset_right = 360
+	_match_label.offset_top = 96
+	_match_label.offset_bottom = 120
 	srow.add_child(_stat("POINTS", "_points_label", UIKit.ACCENT))
 	srow.add_child(_stat("RENOWN", "_renown_label", UIKit.ACCENT2))
 	var rank_col := UIKit.vbox(2)
@@ -378,7 +394,8 @@ func _build_class_select() -> void:
 	var v := UIKit.vbox(18)
 	v.alignment = BoxContainer.ALIGNMENT_CENTER
 	centre.add_child(v)
-	v.add_child(UIKit.label("THE SPIRE RUINS  -  CENTRAL PLAZA", 13, UIKit.ACCENT2, HORIZONTAL_ALIGNMENT_CENTER))
+	_banner_label = UIKit.label("THE SPIRE RUINS  -  TRAINING GROUND", 13, UIKit.ACCENT2, HORIZONTAL_ALIGNMENT_CENTER)
+	v.add_child(_banner_label)
 	v.add_child(UIKit.label("Select your class", 34, UIKit.TEXT, HORIZONTAL_ALIGNMENT_CENTER))
 	var row := UIKit.hbox(24)
 	v.add_child(row)
@@ -430,7 +447,99 @@ func hide_overlays() -> void:
 
 
 func is_overlay_open() -> bool:
-	return _class_select.visible or _pause.visible or store.visible
+	return _class_select.visible or _pause.visible or store.visible or _results.visible
+
+
+func results_open() -> bool:
+	return _results.visible
+
+
+# ------------------------------------------------------------------ battle UI
+func set_match_banner(text: String) -> void:
+	_banner_label.text = text
+	_banner_label.add_theme_color_override("font_color", UIKit.AMBER)
+
+
+func update_match(line: String) -> void:
+	_match_label.visible = line != ""
+	_match_label.text = line
+
+
+func big_popup(text: String, color: Color) -> void:
+	_popup(text, color, 40)
+
+
+## 3 - 2 - 1 - FIGHT. Awaitable.
+func countdown() -> void:
+	for n in ["3", "2", "1"]:
+		_popup(n, UIKit.AMBER, 64)
+		await get_tree().create_timer(0.8).timeout
+	_popup("FIGHT", UIKit.GREEN, 72)
+	await get_tree().create_timer(0.5).timeout
+
+
+func _build_results() -> void:
+	_results = Control.new()
+	_results.visible = false
+	add_child(_results)
+	UIKit.full_rect(_results)
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.62)
+	_results.add_child(dim)
+	UIKit.full_rect(dim)
+	var centre := CenterContainer.new()
+	_results.add_child(centre)
+	UIKit.full_rect(centre)
+	var p := UIKit.panel(UIKit.PANEL_BG_SOLID, 16, UIKit.ACCENT2, 26)
+	p.custom_minimum_size = Vector2(520, 0)
+	centre.add_child(p)
+	_results_box = UIKit.vbox(10)
+	p.add_child(_results_box)
+
+
+func show_results(result: Dictionary) -> void:
+	for c in _results_box.get_children():
+		c.queue_free()
+	var won: bool = result["won"]
+	var color := UIKit.GREEN if won else UIKit.RED
+	_results_box.add_child(UIKit.label(str(result["mode_name"]).to_upper() + "  -  " + str(result["map_name"]), 12, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER))
+	_results_box.add_child(UIKit.label("VICTORY" if won else "DEFEAT", 44, color, HORIZONTAL_ALIGNMENT_CENTER))
+	var stats: Dictionary = result.get("stats", {})
+	var line := "Takedowns %d" % int(stats.get("kills", 0))
+	if stats.has("rounds_won") and result["mode"] == "tournament":
+		line += "   Rounds won %d" % int(stats["rounds_won"])
+	if stats.has("score") and result["mode"] == "clan_war":
+		line += "   Score %d : %d" % [int(stats["score"]["ally"]), int(stats["score"]["enemy"])]
+	if stats.has("attempts") and result["mode"] == "solo":
+		line += "   Attempts %d" % int(stats["attempts"])
+	_results_box.add_child(UIKit.label(line, 14, UIKit.TEXT, HORIZONTAL_ALIGNMENT_CENTER))
+	_results_box.add_child(UIKit.separator())
+	var rew := UIKit.hbox(16)
+	rew.alignment = BoxContainer.ALIGNMENT_CENTER
+	rew.add_child(UIKit.tag("+%d RENOWN" % int(result["renown"]), UIKit.ACCENT2, 14))
+	rew.add_child(UIKit.tag("+%d POINTS" % int(result["points"]), UIKit.ACCENT, 14))
+	_results_box.add_child(rew)
+	_results_box.add_child(UIKit.label("Rank %s   -   %s" % [RankManager.rank_letter(), ("%s / %s renown to Rank %s" % [UIKit.fmt_int(RankManager.renown), UIKit.fmt_int(RankManager.next_threshold()), RankManager.RANKS[mini(RankManager.rank_index + 1, RankManager.RANKS.size() - 1)]]) if RankManager.next_threshold() > 0 else "top rank"], 12, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER))
+	var row := UIKit.hbox(10)
+	var again := UIKit.button("Rematch", UIKit.ACCENT, 15, 42)
+	again.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	again.pressed.connect(func() -> void: rematch_requested.emit())
+	row.add_child(again)
+	var leave := UIKit.button("Return to Nova Aetheris", UIKit.AMBER, 15, 42)
+	leave.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	leave.pressed.connect(func() -> void: return_to_city.emit())
+	row.add_child(leave)
+	_results_box.add_child(row)
+	_results.visible = true
+	_crosshair.visible = false
+	update_match("")
+	overlay_changed.emit(true)
+
+
+func hide_results() -> void:
+	_results.visible = false
+	_crosshair.visible = true
+	overlay_changed.emit(false)
 
 
 # ------------------------------------------------------------------ pause

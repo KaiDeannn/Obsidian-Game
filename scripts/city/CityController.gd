@@ -13,6 +13,7 @@ extends Node3D
 @onready var moon: DirectionalLight3D = $MoonLight
 
 var _actor: Node3D
+var _in_cinematic := false
 
 
 func _ready() -> void:
@@ -50,8 +51,87 @@ func _ready() -> void:
 	Valet.repair_started.connect(func(vid: String, sec: float) -> void: hud.toast("%s is on Rook's lift  -  %s" % [GameState.vehicle_info(vid)["name"], Valet.fmt_seconds(sec)], UIKit.AMBER))
 	GameState.vehicle_damage_changed.connect(_on_vehicle_damage)
 	_set_mouse_captured(true)
+	# Battle system: a pending match puts the portal marker on the Spire gate.
+	Battle.match_ready.connect(_on_match_ready)
+	Battle.match_cleared.connect(_on_match_cleared)
+	if Battle.has_pending():
+		_on_match_ready(Battle.pending)
+	if Battle.last_result.size() > 0 and GameState.arrival_from_spire == false and not Battle.last_result.get("announced", false):
+		Battle.last_result["announced"] = true
+		hud.toast("%s: %s   +%d renown  +%d pts" % [Battle.last_result["mode_name"], "VICTORY" if Battle.last_result["won"] else "DEFEAT", Battle.last_result["renown"], Battle.last_result["points"]], UIKit.GREEN if Battle.last_result["won"] else UIKit.RED)
+	if not GameState.intro_played:
+		GameState.intro_played = true
+		_play_intro()
+	else:
+		hud.toast("Welcome to Nova Aetheris", UIKit.ACCENT)
+		hud.toast("Press P to open your phone and pick up a job", UIKit.TEXT_DIM)
+
+
+# ----------------------------------------------------------------- cinematics
+## Opening fly-over (CinematicData "city_intro"). Input and HUD are off until it ends.
+func _play_intro() -> void:
+	_in_cinematic = true
+	hud.visible = false
+	player.input_enabled = false
+	camera_rig.look_enabled = false
+	await Cinematic.play_named("city_intro", {"resolve": _resolve_cine_point})
+	_in_cinematic = false
+	camera_rig._yaw = player.rotation.y
+	hud.visible = true
+	player.input_enabled = not phone.is_open
+	camera_rig.look_enabled = true
+	_set_mouse_captured(true)
 	hud.toast("Welcome to Nova Aetheris", UIKit.ACCENT)
 	hud.toast("Press P to open your phone and pick up a job", UIKit.TEXT_DIM)
+
+
+## Live anchors for sequences: the camera can end exactly where gameplay's camera sits.
+func _resolve_cine_point(key: String) -> Variant:
+	var p := player.global_position
+	var back := player.global_transform.basis.z
+	match key:
+		"player_back":
+			return {"pos": p + back * 4.6 + Vector3.UP * 2.3, "look": p + Vector3.UP * 1.4}
+		"player_high":
+			return {"pos": p + back * 10.0 + Vector3.UP * 9.0, "look": CityData.GATE_POSITION + Vector3.UP * 8.0}
+		"player_head":
+			return p + Vector3.UP * 1.6
+		"gate":
+			return CityData.GATE_POSITION
+		"player":
+			return player
+	return Vector3.ZERO
+
+
+# ----------------------------------------------------------------- battles
+func _on_match_ready(m: Dictionary) -> void:
+	objective_marker.show_at(CityData.GATE_POSITION, "YOUR PORTAL  -  %s" % m["mode_name"])
+	hud.set_objective("Match ready: %s on %s. Follow the markers to your portal." % [m["mode_name"], m["map_name"]], 1, 1)
+	hud.minimap.objective = CityData.GATE_POSITION
+	hud.minimap.has_objective = true
+	gate.set_match_pending(true, m["mode_name"])
+	hud.toast(m["message"], UIKit.GREEN)
+	if not _in_cinematic and not Cinematic.is_playing and is_inside_tree():
+		_match_cinematic()
+
+
+func _match_cinematic() -> void:
+	_in_cinematic = true
+	player.input_enabled = false
+	camera_rig.look_enabled = false
+	await Cinematic.play_named("match_ready", {"resolve": _resolve_cine_point, "letterbox": true})
+	_in_cinematic = false
+	camera_rig._yaw = player.rotation.y
+	player.input_enabled = not phone.is_open
+	camera_rig.look_enabled = not phone.is_open
+
+
+func _on_match_cleared() -> void:
+	gate.set_match_pending(false, "")
+	if not JobManager.has_active():
+		objective_marker.hide_marker()
+		hud.clear_objective()
+		hud.minimap.has_objective = false
 
 
 func _process(_delta: float) -> void:
@@ -63,6 +143,8 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _in_cinematic:
+		return
 	if event.is_action_pressed("phone"):
 		phone.toggle()
 	elif event.is_action_pressed("ui_cancel"):

@@ -27,6 +27,8 @@ Headless regression test (no window needed):
 |---|---|
 | On foot (both scenes) | **WASD** move · **Shift** sprint · **Space** jump · mouse look · **Esc** release / recapture mouse |
 | City | **E** enter / exit vehicle, confirm gate travel · **P** phone (or the PHONE button) |
+| Phone › BATTLES | pick Solo / Tournament / Clan War, a preferred map, clan members · **Find match** · then **E** at the Spire gate |
+| Spire (match) | **1 / 2** class · **Space** skips the arena fly-in · fight · results: Rematch or Return |
 | Phone › CALLS | **Message** / **Call** a player in the session · **Call Rook** for the valet: **Request** / **Fix** / **Return** |
 | Vehicle | **W/S** throttle & brake/reverse · **A/D** steer · **Space** handbrake · **E** exit |
 | Spire | **1 / 2** choose class · **LMB** strike / fire · **RMB** block / aim · **R** reload · **B** Armory · **Esc** pause |
@@ -39,6 +41,8 @@ Headless regression test (no window needed):
 - **JobManager.gd** — Job board from `CityData.JOBS`, active job + multi-stage objectives, pays Credits + Renown on completion (+5 % credits per owned Heights property).
 - **RankModal.tscn** (`scripts/ui/RankModal.gd`) — global CanvasLayer 100 that pauses the game and shows *"Congratulations — Advanced to Rank C"* wherever the threshold is crossed.
 - **Session.gd** — player-to-player communication: roster of session players (high-level multiplayer peers; a simulated roster of three answers offline), direct **text messages** with unread counts, and **voice calls** (ring / accept / decline / end signalling, microphone capture → 16 kHz PCM over RPC → generator playback, mute). Attach any `MultiplayerPeer` and the same code talks to real players.
+- **Cinematic.gd** — data-driven camera sequences (`CinematicData.SEQUENCES`): fly / orbit / track / hold shots, letterbox, titles, fade, Space-to-skip, String anchors resolved live by the playing scene (`"player_back"`). The opening fly-over (`city_intro`) plays once per session; `match_ready` and `battle_intro` reuse it.
+- **BattleManager.gd** (autoload `Battle`) — match setup from the design document: Solo / Tournament / Clan War, the Golden Rule (opponents of exactly your rank), the map rule (both sides state a preference, the system picks at random when they differ), "Your match is ready. Follow the markers to your portal. Good luck!", rewards on `finish()`.
 - **Valet.gd** — Rook Hale's automated valet & mechanic: **Request** spawns an owned vehicle at a road node ≥ 45 m away and a `ValetDriver` NPC drives it along the road graph to the player, parks at the kerb and climbs out; **Return** removes it instantly; **Fix** puts a damaged vehicle on the service queue (`repair_seconds_per_percent`) and Rook rings back when it is done.
 
 ### City (`scripts/city/`)
@@ -62,7 +66,9 @@ Headless regression test (no window needed):
 - **UIKit.gd** (`scripts/shared/`) — styled panels, buttons, tags, progress bars; **Palette.gd** — materials and collidable primitives.
 
 ### Spire (`scripts/spire/`)
-- **SpireCombat.gd** — match controller: class select → spawn, enemy `defeated` → Points + Renown, respawn, overlays, return to city.
+- **SpireCombat.gd** — match controller. Training ground (no pending match) as before; with a pending match it clears the dummies, flies the `battle_intro`, counts down and runs the mode: Solo (death restarts the attempt), Tournament (three rounds, elimination = spectate), Clan War (five a side with respawns, kill target or time limit). Results screen with Rematch / Return.
+- **BattleFighter.gd** — AI combatant for any of the six classes: melee chase / strike, ranged line-of-sight hitscan, Engineer charges; team, rank-scaled HP, weapon category for the mini-map dots, revive for rounds and respawns.
+- **SpireArenaBuilder.gd** — `map_id` picks **Ruins** (plaza, High Spires, Mid-Tier Balconies, Shadow Corridors, Ramp Entrances, Chokepoints), **Rooftop** (five roofs + ramps) or **Forest** (trunks, logs, shrine).
 - **SpirePlayer.gd** — one controller, two classes.
   *Swordsman*: tweened swing arc with a timed hitbox window (one hit per target per swing), block with a 0.3 s **parry** window that staggers hunters, 88 % damage reduction on a late block.
   *Sniper*: RMB slides the camera to first person + FOV 16 with scope HUD; LMB raycasts from the view centre with **bullet adjustment** = hip/ADS spread + gravity drop relative to a 60 m zero; headshots ×2; 5-round mag, reload.

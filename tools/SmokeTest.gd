@@ -25,6 +25,9 @@ func _ready() -> void:
 	await _test_city()
 	await _test_comms_valet()
 	await _test_premium_weapons()
+	await _test_cinematic()
+	await _test_battle_setup()
+	await _test_battle_matches()
 	await _test_spire()
 	await _test_rank_modal()
 	print("\nSMOKE TEST %s  (%d failure(s))" % ["PASSED" if _failures == 0 else "FAILED", _failures])
@@ -60,6 +63,7 @@ func _test_progression() -> void:
 
 func _test_city() -> void:
 	print("\n[City]")
+	GameState.intro_played = true
 	var city: Node3D = load("res://scenes/city/NovaAetheris.tscn").instantiate()
 	add_child(city)
 	await _frames(5)
@@ -115,6 +119,7 @@ func _test_city() -> void:
 
 func _test_comms_valet() -> void:
 	print("\n[Comms + Valet]")
+	GameState.intro_played = true
 	var city: Node3D = load("res://scenes/city/NovaAetheris.tscn").instantiate()
 	add_child(city)
 	await _frames(5)
@@ -218,6 +223,239 @@ func _test_comms_valet() -> void:
 
 func _wait_seconds(sec: float) -> void:
 	await get_tree().create_timer(sec, true).timeout
+
+
+func _wait_until(cond: Callable, timeout: float) -> bool:
+	var t := 0.0
+	while t < timeout:
+		if cond.call():
+			return true
+		await _wait_seconds(0.1)
+		t += 0.1
+	return cond.call()
+
+
+func _test_cinematic() -> void:
+	print("\n[Cinematic system]")
+	GameState.intro_played = true
+	var city: Node3D = load("res://scenes/city/NovaAetheris.tscn").instantiate()
+	add_child(city)
+	await _frames(5)
+	var rig_cam: Camera3D = city.get_node("CameraRig/Yaw/Pitch/SpringArm3D/Camera3D")
+	var shots := [
+		{"type": "fly", "from": {"pos": Vector3(0, 30, -100), "look": Vector3.ZERO}, "to": {"pos": Vector3(0, 30, -60), "look": Vector3.ZERO}, "duration": 0.4, "title": "T", "subtitle": "S"},
+		{"type": "orbit", "center": Vector3.ZERO, "radius": 20.0, "height": 10.0, "from_angle": 0.0, "to_angle": 90.0, "duration": 0.4},
+		{"type": "hold", "duration": 0.2},
+	]
+	var ended := [false, false]
+	Cinematic.finished.connect(func(_n: String, skipped: bool) -> void: ended[0] = true; ended[1] = skipped, CONNECT_ONE_SHOT)
+	Cinematic.play(shots, {"fade_in": false, "fade_out": false}, "test")
+	await _wait_seconds(0.15)
+	_check(Cinematic.is_playing and get_viewport().get_camera_3d() != null and get_viewport().get_camera_3d().name == "CinematicCamera", "a sequence takes over with its own camera")
+	_check(Cinematic._bar_top.offset_bottom > 0.0 or Cinematic._title.text == "T", "letterbox and titles are shown")
+	var done := await _wait_until(func() -> bool: return not Cinematic.is_playing, 4.0)
+	_check(done and ended[0] and not ended[1], "fly / orbit / hold sequence finishes by itself")
+	await _frames(2)
+	_check(get_viewport().get_camera_3d() == rig_cam, "gameplay camera is restored afterwards")
+	ended = [false, false]
+	Cinematic.finished.connect(func(_n: String, skipped: bool) -> void: ended[0] = true; ended[1] = skipped, CONNECT_ONE_SHOT)
+	Cinematic.play([{"type": "hold", "duration": 5.0}], {"fade_in": false}, "long")
+	await _wait_seconds(0.1)
+	Cinematic.skip()
+	done = await _wait_until(func() -> bool: return ended[0], 3.0)
+	_check(done and ended[1], "skip ends a sequence early and reports it")
+	var ctrl: Node = city
+	Cinematic.play([{"type": "fly", "from": "player_back", "to": "player_back", "duration": 0.2}], {"fade_in": false, "fade_out": false, "resolve": ctrl._resolve_cine_point}, "resolve")
+	await _wait_seconds(0.05)
+	var cam := get_viewport().get_camera_3d()
+	var player: Node3D = city.get_node("Player")
+	_check(cam != null and cam.global_position.distance_to(player.global_position) < 8.0, "String anchors resolve to live scene positions")
+	await _wait_until(func() -> bool: return not Cinematic.is_playing, 3.0)
+	_check(CinematicData.SEQUENCES.has("city_intro") and CinematicData.SEQUENCES["city_intro"].size() == 4, "opening sequence is a four-shot catalogue entry")
+	city.queue_free()
+	await _frames(2)
+	# the opening plays once on first entry and hands back control
+	GameState.intro_played = false
+	var city2: Node3D = load("res://scenes/city/NovaAetheris.tscn").instantiate()
+	add_child(city2)
+	await _wait_seconds(0.4)
+	var hud2: CanvasLayer = city2.get_node("CityHUD")
+	var player2: PlayerController = city2.get_node("Player")
+	_check(Cinematic.is_playing and Cinematic.current_name == "city_intro" and not hud2.visible and not player2.input_enabled, "opening cinematic plays on first entry, HUD and controls off")
+	_check(GameState.intro_played, "opening is marked as played")
+	Cinematic.skip()
+	await _wait_until(func() -> bool: return not Cinematic.is_playing, 3.0)
+	await _wait_seconds(0.3)
+	_check(hud2.visible and player2.input_enabled, "after the opening the HUD and controls return")
+	city2.queue_free()
+	await _frames(2)
+
+
+func _test_battle_setup() -> void:
+	print("\n[Battle system: match setup]")
+	Battle.history.clear()
+	var m := Battle.setup_match("solo", "ruins", [], 7)
+	_check(m["rank"] == RankManager.rank_letter() and m["opponents"][0]["rank"] == RankManager.rank_letter(), "Golden Rule: the opponent is exactly your rank")
+	_check(m["message"] == BattleData.MATCH_READY_MESSAGE, "match-ready message matches the document")
+	var same := false
+	var differ := false
+	for seed_value in range(40):
+		var mm := Battle.setup_match("solo", "rooftop", [], seed_value)
+		var ok := false
+		if mm["opponent_pref"] == "rooftop":
+			same = true
+			ok = mm["map"] == "rooftop"
+		else:
+			differ = true
+			ok = BattleData.map_by_id(mm["map"])["id"] == mm["map"]
+		if not ok:
+			same = false
+			break
+	_check(same and differ, "map rule: shared preference keeps the map, different preferences let the system choose")
+	Battle.setup_match("solo", "ruins", [], 7)
+	GameState.intro_played = true
+	var city: Node3D = load("res://scenes/city/NovaAetheris.tscn").instantiate()
+	add_child(city)
+	await _frames(5)
+	var hud: CityHUD = city.get_node("CityHUD")
+	var player: PlayerController = city.get_node("Player")
+	_check(hud._objective_label.text.begins_with("Match ready"), "pending match puts the portal objective on the HUD")
+	_check(hud.minimap.has_objective and hud.minimap.objective == CityData.GATE_POSITION, "mini-map marks the Spire gate as your portal")
+	if Cinematic.is_playing:
+		Cinematic.skip()
+		await _wait_until(func() -> bool: return not Cinematic.is_playing, 4.0)
+	player.global_position = CityData.GATE_POSITION + Vector3(0, 0.6, 1)
+	await _frames(6)
+	_check(hud._prompt.text.begins_with("YOUR PORTAL"), "gate prompt becomes the match portal")
+	Battle.clear()
+	_check(not Battle.has_pending() and not hud._objective_panel.visible, "cancelling clears the match and the marker")
+	city.queue_free()
+	await _frames(2)
+	_check(Battle.can_enter_tournament(RankManager.rank_letter()) and not Battle.can_enter_tournament("S"), "tournaments: only your own tier is open")
+	var eligible := Battle.eligible_clan_members("D")
+	_check(eligible.size() == 4, "clan war: only online members at the tier are eligible (%d)" % eligible.size())
+	var cw := Battle.setup_match("clan_war", "forest", ["Juno Hale", "Teo Varga", "Bram Okafor", "Kael Dusk", "Ilse Moor", "Sera Lind"], 2)
+	_check(cw["allies"].size() == 4 and cw["opponents"].size() == 5, "clan war fields you + 4 picked members against five")
+	Battle.clear()
+
+
+func _spire_match(mode: String, map_id: String, allies: Array, seed_value: int) -> Node3D:
+	Battle.setup_match(mode, map_id, allies, seed_value)
+	var spire: Node3D = load("res://scenes/spire/SpireRuins.tscn").instantiate()
+	add_child(spire)
+	await _frames(5)
+	var hud: SpireHUD = spire.get_node("SpireHUD")
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _wait_seconds(0.3)
+	if Cinematic.is_playing:
+		Cinematic.skip()
+	await _wait_until(func() -> bool: return spire.match_active, 12.0)
+	return spire
+
+
+func _test_battle_matches() -> void:
+	print("\n[Battle system: matches in the Spire]")
+	var renown_start := RankManager.renown
+	var rank_idx0 := RankManager.rank_index
+	var points0 := GameState.points
+	# ---- arena variants build on their own
+	Battle.clear()
+	for variant in [["rooftop", "Roof"], ["forest", "Trunk"], ["ruins", "Dais"]]:
+		var a: SpireArenaBuilder = load("res://scripts/spire/SpireArenaBuilder.gd").new()
+		a.map_id = variant[0]
+		add_child(a)
+		_check(a.get_node_or_null(variant[1]) != null, "%s builds (%s)" % [BattleData.map_by_id(variant[0])["name"], variant[1]])
+		a.queue_free()
+	await _frames(2)
+	# ---- solo
+	Battle.setup_match("solo", "forest", [], 3)
+	var chosen: String = Battle.pending["map"]
+	var spire: Node3D = await _spire_match("solo", "forest", [], 3)
+	var hud: SpireHUD = spire.get_node("SpireHUD")
+	var arena: SpireArenaBuilder = spire.get_node("Arena")
+	_check(spire.is_battle() and arena.map_id == chosen, "pending match loads the battlefield the system settled on (%s)" % BattleData.map_by_id(chosen)["name"])
+	_check(spire.match_active and spire.fighters.size() == 1 and spire.fighters[0].team == "enemy", "solo match starts with one opponent after the intro and countdown")
+	_check(hud._match_label.visible and hud._match_label.text.begins_with("SOLO"), "match line on the HUD")
+	var player: SpirePlayer = spire.player
+	var foe: BattleFighter = spire.fighters[0]
+	_check(foe.rank == RankManager.rank_letter() and foe.weapon_category in BattleData.WEAPON_COLORS, "opponent carries your rank and a weapon category for the vision dots")
+	# player downed: the attempt restarts
+	player.take_damage(9999.0, foe)
+	await _frames(2)
+	_check(not spire.match_active and spire.attempts == 2, "solo death stops the clock and counts a new attempt")
+	await _wait_until(func() -> bool: return spire.match_active, 5.0)
+	_check(spire.match_active and player.alive and foe.alive, "attempt restarts with both fighters back on their feet")
+	var renown0 := RankManager.renown
+	foe.take_damage(9999.0, foe.global_position, false, player)
+	await _frames(3)
+	_check(not Battle.has_pending() and Battle.last_result["won"] and Battle.last_result["mode"] == "solo", "downing the opponent wins the solo battle")
+	_check(RankManager.renown == renown0 + 120 + 5 and Battle.last_result["points"] == 60, "solo win pays 120 renown + 60 points (plus the takedown)")
+	_check(hud.results_open(), "results screen opens")
+	spire.queue_free()
+	await _frames(2)
+	# ---- ranged AI fighter fires at the player
+	spire = await _spire_match("solo", "ruins", [], 5)
+	player = spire.player
+	player.global_position = Vector3(8, 0.6, 46)
+	var sniper: BattleFighter = spire._spawn_fighter({"name": "Test Sniper", "class": "Sniper", "team": "enemy", "rank": "D", "weapon": "ranged"}, Vector3(8, 0.6, 34))
+	var hp0 := player.hp
+	await _wait_seconds(3.5)
+	_check(player.hp < hp0, "ranged fighter lands line-of-sight shots on the player (%.0f -> %.0f)" % [hp0, player.hp])
+	sniper.queue_free()
+	spire.queue_free()
+	Battle.clear()
+	await _frames(2)
+	# ---- tournament: elimination -> spectate -> loss reward
+	spire = await _spire_match("tournament", "rooftop", [], 4)
+	hud = spire.get_node("SpireHUD")
+	arena = spire.get_node("Arena")
+	_check(hud._match_label.text.begins_with("TOURNAMENT"), "tournament match line")
+	player = spire.player
+	player.take_damage(9999.0, spire.fighters[0])
+	await _wait_until(func() -> bool: return not Battle.last_result.is_empty() and Battle.last_result["mode"] == "tournament", 8.0)
+	_check(Battle.last_result["mode"] == "tournament" and not Battle.last_result["won"] and Battle.last_result["renown"] == 40, "eliminated in round one: spectate, then the loss reward")
+	spire.queue_free()
+	await _frames(2)
+	# ---- clan war: five a side, kill target wins
+	spire = await _spire_match("clan_war", "ruins", ["Juno Hale", "Teo Varga", "Bram Okafor", "Kael Dusk"], 6)
+	hud = spire.get_node("SpireHUD")
+	player = spire.player
+	var allies := get_tree().get_nodes_in_group("ally").size()
+	var enemies := 0
+	for f in spire.fighters:
+		if f.team == "enemy":
+			enemies += 1
+	_check(allies == 4 and enemies == 5, "clan war fields you + 4 allies against 5 (allies %d, enemies %d)" % [allies, enemies])
+	_check(hud._match_label.text.begins_with("CLAN WAR"), "clan war score line")
+	var target: int = int(Battle.mode_info("clan_war")["kill_target"])
+	var downed := 0
+	while downed < target:
+		for f in spire.fighters:
+			if downed >= target:
+				break
+			if f.team == "enemy" and f.alive:
+				f.take_damage(9999.0, f.global_position, false, player)
+				downed += 1
+		await _frames(2)
+		for f in spire.fighters:
+			if f.team == "enemy" and not f.alive:
+				f.revive()
+		await _frames(2)
+	await _wait_until(func() -> bool: return not Battle.last_result.is_empty() and Battle.last_result["mode"] == "clan_war", 4.0)
+	_check(Battle.last_result["mode"] == "clan_war" and Battle.last_result["won"] and int(Battle.last_result["stats"]["score"]["ally"]) >= target, "reaching the kill target wins the clan war")
+	spire.queue_free()
+	Battle.clear()
+	await _frames(2)
+	# match rewards crossed the Rank C threshold: put progression back so the later
+	# sections see the same world they were written against
+	while RankModal._showing:
+		RankModal._dismiss()
+		await _frames(1)
+	RankModal._queue.clear()
+	get_tree().paused = false
+	RankManager.renown = renown_start
+	RankManager.rank_index = rank_idx0
+	GameState.points = points0
 
 
 func _test_premium_weapons() -> void:
