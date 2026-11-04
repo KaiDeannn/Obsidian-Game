@@ -61,6 +61,9 @@ func _tap(b: Control, settle := 0.7) -> void:
 	if sc:
 		sc.ensure_control_visible(b)
 		await _wait(0.3)
+	if not is_instance_valid(b):
+		push_warning("tap target was rebuilt before the tap")
+		return
 	var target := b.get_global_rect().get_center()
 	var tw := create_tween()
 	tw.tween_property(_cursor, "position", target, 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)

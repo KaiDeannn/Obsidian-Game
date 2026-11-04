@@ -48,7 +48,8 @@ func eligible_clan_members(tier: String) -> Array:
 
 ## Builds the match. `preferred_map` is the player's choice; `allies` are clan member names
 ## (clan war only, max 5 including the player); `opponent_class` optional for solo.
-func setup_match(mode: String, preferred_map: String, allies: Array = [], seed_value := -1) -> Dictionary:
+## `dry_run` builds and returns the match without making it pending or announcing it.
+func setup_match(mode: String, preferred_map: String, allies: Array = [], seed_value := -1, dry_run := false) -> Dictionary:
 	if seed_value >= 0:
 		_rng.seed = seed_value
 	var rank := RankManager.rank_letter()
@@ -81,12 +82,15 @@ func setup_match(mode: String, preferred_map: String, allies: Array = [], seed_v
 		_:
 			push_warning("Battle: unknown mode %s" % mode)
 			return {}
-	pending = {
+	var built := {
 		"mode": mode, "mode_name": info["name"], "rank": rank, "map": map_id, "map_name": BattleData.map_by_id(map_id)["name"],
 		"map_rule": map_rule, "player_pref": preferred_map, "opponent_pref": opp_pref,
 		"opponents": opponents, "allies": ally_list, "clan": BattleData.CLAN["name"], "rival": BattleData.CLAN["rival"],
 		"message": BattleData.MATCH_READY_MESSAGE,
 	}
+	if dry_run:
+		return built
+	pending = built
 	match_ready.emit(pending)
 	return pending
 
