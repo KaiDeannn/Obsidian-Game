@@ -30,6 +30,14 @@ static func mat(albedo: Color, roughness := 0.85, metallic := 0.0, emission := C
 	return m
 
 
+## Physically based surface: albedo, roughness, metallic, optional alpha (transparent when < 1).
+static func pbr(albedo: Color, roughness := 0.8, metallic := 0.0, alpha := 1.0) -> StandardMaterial3D:
+	var m := mat(Color(albedo.r, albedo.g, albedo.b, alpha), roughness, metallic)
+	if alpha < 1.0:
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	return m
+
+
 ## Self-lit neon material.
 static func glow(color: Color, energy := 3.0) -> StandardMaterial3D:
 	return mat(color * 0.35, 0.4, 0.0, color, energy)

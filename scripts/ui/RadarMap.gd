@@ -137,10 +137,10 @@ func _draw_overlay(_canvas: CanvasItem) -> void:
 func _make_map_environment() -> Environment:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.06, 0.065, 0.08)
+	env.background_color = Color(0.62, 0.66, 0.7)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.75, 0.8, 0.95)
-	env.ambient_light_energy = 1.6
+	env.ambient_light_color = Color(0.9, 0.92, 0.95)
+	env.ambient_light_energy = 1.4
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.fog_enabled = false
 	env.glow_enabled = false

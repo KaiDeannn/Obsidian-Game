@@ -11,13 +11,14 @@
 [ext_resource type="Script" path="res://scripts/city/ObjectiveMarker.gd" id="9_marker"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_night"]
-sky_top_color = Color(0.015, 0.02, 0.035, 1)
-sky_horizon_color = Color(0.12, 0.14, 0.2, 1)
-sky_curve = 0.12
-ground_bottom_color = Color(0.02, 0.02, 0.03, 1)
-ground_horizon_color = Color(0.08, 0.09, 0.12, 1)
-sun_angle_max = 8.0
-sun_curve = 0.2
+sky_top_color = Color(0.24, 0.48, 0.88, 1)
+sky_horizon_color = Color(0.72, 0.82, 0.94, 1)
+sky_curve = 0.09
+sky_energy_multiplier = 1.1
+ground_bottom_color = Color(0.45, 0.48, 0.52, 1)
+ground_horizon_color = Color(0.7, 0.75, 0.8, 1)
+sun_angle_max = 28.0
+sun_curve = 0.12
 
 [sub_resource type="Sky" id="Sky_night"]
 sky_material = SubResource("ProceduralSkyMaterial_night")
@@ -25,20 +26,32 @@ sky_material = SubResource("ProceduralSkyMaterial_night")
 [sub_resource type="Environment" id="Environment_city"]
 background_mode = 2
 sky = SubResource("Sky_night")
-ambient_light_source = 2
-ambient_light_color = Color(0.38, 0.4, 0.48, 1)
-ambient_light_energy = 0.55
+ambient_light_source = 3
+ambient_light_color = Color(0.92, 0.9, 0.86, 1)
+ambient_light_sky_contribution = 0.4
+ambient_light_energy = 0.85
+reflected_light_source = 2
 tonemap_mode = 3
-tonemap_exposure = 1.05
+tonemap_exposure = 0.92
+tonemap_white = 6.0
+ssr_enabled = true
+ssr_max_steps = 96
+ssr_fade_in = 0.1
+ssr_fade_out = 1.5
 ssao_enabled = true
+ssao_radius = 1.5
+ssao_intensity = 1.0
 glow_enabled = true
-glow_intensity = 0.9
-glow_bloom = 0.12
+glow_intensity = 0.35
+glow_bloom = 0.04
 glow_blend_mode = 0
+glow_hdr_threshold = 1.3
 fog_enabled = true
-fog_light_color = Color(0.08, 0.09, 0.13, 1)
-fog_density = 0.0045
-fog_sky_affect = 0.4
+fog_light_color = Color(0.78, 0.85, 0.95, 1)
+fog_light_energy = 0.9
+fog_density = 0.0009
+fog_aerial_perspective = 0.35
+fog_sky_affect = 0.1
 
 [node name="NovaAetheris" type="Node3D"]
 script = ExtResource("1_ctrl")
@@ -47,10 +60,16 @@ script = ExtResource("1_ctrl")
 environment = SubResource("Environment_city")
 
 [node name="MoonLight" type="DirectionalLight3D" parent="."]
-light_color = Color(0.78, 0.82, 0.95, 1)
-light_energy = 0.55
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 1.6
 shadow_enabled = true
-directional_shadow_max_distance = 160.0
+shadow_blur = 1.2
+directional_shadow_mode = 2
+directional_shadow_split_1 = 0.08
+directional_shadow_split_2 = 0.2
+directional_shadow_split_3 = 0.45
+directional_shadow_max_distance = 200.0
+directional_shadow_fade_start = 0.85
 
 [node name="CityBuilder" type="Node3D" parent="."]
 script = ExtResource("2_builder")
@@ -59,7 +78,7 @@ script = ExtResource("2_builder")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.8, 12)
 
 [node name="Vehicle" parent="." instance=ExtResource("4_vehicle")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -8, 0.6, 26)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -8, 0.6, 29)
 
 [node name="CityGate" parent="." instance=ExtResource("5_gate")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -146)

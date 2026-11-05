@@ -136,6 +136,20 @@ The tactical mini-map shows enemy dots only with line of sight (World-layer ray 
 
 ---
 
+## 4b. City visuals (modern metropolis pass)
+
+**Files**: `scripts/city/CityBuilder.gd`, `Pedestrian.gd`, `TrafficDriver.gd`, `scenes/city/NovaAetheris.tscn` (environment + sun), `Palette.pbr`, `VehicleController._build_model`.
+
+- **Look**: bright daytime. Sun `DirectionalLight3D` (energy 1.6, warm white) with 4-split cascaded shadows (PSSM, 200 m); procedural blue sky; sky-driven ambient blended 40 % with a neutral colour; sky reflections plus screen-space reflections for the glass; SSAO; ACES tone mapping; subtle glow (bloom); light aerial fog; MSAA 2x + FXAA.
+- **Materials** (all `StandardMaterial3D`, physically based): blue curtain-wall glass (metallic 0.88, roughness 0.06), dark storefront glass, clear railing glass, white and grey concrete, asphalt, light pavement, lane paint, metal, grass, hedge, water.
+- **Architecture**: `_glass_tower` (three-storey white podium with storefront band and canopy, planted terrace with umbrella tables, glass tower with white floor bands and corner columns, roof garden), `_midrise_building` (retail base, window strips, alternating balconies with glass rails and planters, optional roof garden), `_build_commerce` (mixed-use blocks, plaza pool), `_build_villas` (white houses with roof gardens and plunge pools on the CityData property plots), `_build_plaza` (white dais in a reflecting pool, bridges, flowerbeds, cafe seating, the station shelter).
+- **Roads**: every corridor is a dual carriageway. The centre line carries a 2 m grass median with a hedge (gaps at intersections); dashed dividers at ±3.5 m, edge lines at ±5.9 m, zebra crossings on each approach. **Cars drive on the right-hand lane, 2.3 m off the centre line** (`RoadNetwork.lane_point` gives a look-ahead point for lane keeping; `ValetDriver` and `TrafficDriver` both use it). Parked cars sit in the kerb lane.
+- **Life**: 34 `Pedestrian` figures walking pavement loops (visual only, no collision); 6 traffic cars on three loops through the vehicle autopilot (they collide like any car; NPC-driven cars never record crash damage).
+- **Unchanged**: the 6×6 road lattice, block positions, property positions, job stage positions, the Spire gate trigger, the station pick-up spot, all gameplay scripts. The player's car now starts in the inner lane (`CityData.VEHICLE_SPAWN` z = 29).
+- **Tuning**: counts are the constants `PEDESTRIANS` / `TRAFFIC_CARS` at the top of `CityBuilder.gd`; lighting lives in the scene's `Environment_city` sub-resource.
+
+---
+
 ## 5. Other systems (reference)
 
 - **Phone** (`PhoneUI.gd`): Home, Jobs, Property, Stats, Calls (contacts, messages, call overlay with ringtone/timer/mic meter; Rook's valet bar after his recorded greeting), Garage (vehicles, condition, dealership), Weapons (ninja arsenal, Equip), Battles.
@@ -159,4 +173,5 @@ The tactical mini-map shows enemy dots only with line of sight (World-layer ray 
 - **2026-10-21** — vertical slice: city (driving, phone with Jobs / Property / Stats, gate), Spire (class combat, LOS mini-map, rank modal, armory).
 - **2026-10-29** — player-to-player comms (texts, voice calls) and Rook's valet (Request / Fix / Return, driving NPC); flat theme.
 - **2026-11-03** — the twelve Ninja Legendary & Mythic weapons as functional weapons with traits; Weapons app; Q cycling.
+- **2026-11-05** — city visual overhaul: sunlit modern metropolis (PBR materials, glass towers with podiums and terraces, greenery and water, dual carriageways with medians and crossings, traffic, pedestrians, daylight lighting and post-processing); lane keeping for NPC drivers.
 - **2026-11-04** — scalable cinematic system with the opening fly-over; battle system from the design document (Solo / Tournament / Clan War, Golden Rule, map rule, portal flow, three arenas, six AI classes, vision dots, results and rewards); this document.

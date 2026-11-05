@@ -129,9 +129,11 @@ func request(vehicle_id: String) -> bool:
 	car.vehicle_id = vehicle_id
 	car.paint = info["paint"]
 	car.name = "Valet_%s" % vehicle_id
-	var spawn := road[0] + Vector3(0, 0.6, 0)
 	var first := path[0]
-	var face := Vector3(first.x - spawn.x, 0.0, first.z - spawn.z)
+	var face := Vector3(first.x - road[0].x, 0.0, first.z - road[0].z)
+	var spawn := road[0] + Vector3(0, 0.6, 0)
+	if face.length() > 0.1:
+		spawn += face.normalized().cross(Vector3.UP) * 2.3
 	get_tree().current_scene.add_child(car)
 	car.global_position = spawn
 	if face.length() > 0.1:

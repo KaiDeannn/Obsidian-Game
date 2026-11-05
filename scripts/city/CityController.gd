@@ -17,7 +17,7 @@ var _in_cinematic := false
 
 
 func _ready() -> void:
-	moon.rotation_degrees = Vector3(-48, 35, 0)
+	moon.rotation_degrees = Vector3(-52, 38, 0)      # mid-afternoon sun
 	player.camera_rig = camera_rig
 	_actor = player
 	if GameState.arrival_from_spire:

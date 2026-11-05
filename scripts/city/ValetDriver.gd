@@ -12,6 +12,7 @@ signal arrived
 @export var cruise_speed := 15.0        # m/s on straights
 @export var corner_speed := 5.5
 @export var give_up_after := 80.0       # seconds before parking wherever it is
+@export var lane_offset := 2.3          # drive on the right-hand side of the road centre line
 
 var vehicle: VehicleController
 var target: Node3D
@@ -32,6 +33,7 @@ func setup(car: VehicleController, player: Node3D, road_path: PackedVector3Array
 	path = road_path
 	vehicle.autopilot = true
 	vehicle.set_driver(self)             # occupied: the player cannot climb in mid-delivery
+	_segment_start = vehicle.global_position
 	_npc = _build_npc()
 	vehicle.model.add_child(_npc)
 	_npc.position = Vector3(-0.35, 0.95, 0.1)
@@ -59,9 +61,10 @@ func _physics_process(delta: float) -> void:
 	if final_leg:
 		goal = target.global_position
 	else:
-		goal = path[waypoint_index]
-		var reach := 3.0 if waypoint_index == path.size() - 1 else 4.5
-		if Vector2(goal.x - pos.x, goal.z - pos.z).length() < reach:
+		goal = _lane_goal(waypoint_index)
+		var wp: Vector3 = path[waypoint_index]
+		var reach := 3.0 if waypoint_index == path.size() - 1 else 5.0
+		if Vector2(wp.x - pos.x, wp.z - pos.z).length() < reach + lane_offset:
 			waypoint_index += 1
 			return
 	var flat := Vector2(goal.x - pos.x, goal.z - pos.z)
@@ -117,6 +120,17 @@ func _physics_process(delta: float) -> void:
 	vehicle.auto_throttle = throttle
 	vehicle.auto_steer = steer
 	vehicle.auto_brake = false
+
+
+## Waypoints sit on the road centre line; steer toward a look-ahead point on the right-hand
+## lane of the current segment (lane keeping), not straight at the far waypoint.
+var _segment_start := Vector3.INF
+
+
+func _lane_goal(i: int) -> Vector3:
+	var b: Vector3 = path[i]
+	var a: Vector3 = path[i - 1] if i > 0 else (_segment_start if _segment_start != Vector3.INF else vehicle.global_position)
+	return RoadNetwork.lane_point(a, b, vehicle.global_position, lane_offset, 6.0)
 
 
 func _stop_and_park() -> void:

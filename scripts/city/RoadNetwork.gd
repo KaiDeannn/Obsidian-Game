@@ -79,6 +79,22 @@ static func path_between(from_index: int, to_index: int) -> PackedVector3Array:
 	return astar.get_point_path(from_index, to_index)
 
 
+## Lane keeping: the drivable line of segment a->b sits `offset` metres to the right of the
+## centre line. Returns the point on that line `lookahead` metres ahead of where `pos`
+## projects, clamped to the segment end, so a driver steers back into its lane smoothly.
+static func lane_point(a: Vector3, b: Vector3, pos: Vector3, offset: float, lookahead: float) -> Vector3:
+	var dir := b - a
+	dir.y = 0.0
+	var length := dir.length()
+	if length < 0.01:
+		return b
+	dir /= length
+	var right := dir.cross(Vector3.UP)
+	var la := a + right * offset
+	var t := clampf((pos - la).dot(dir) + lookahead, 0.0, length)
+	return la + dir * t
+
+
 ## Pick an intersection the valet can spawn at: on the road, at least `min_d` metres
 ## from `pos` and as close to `min_d` as possible so the delivery stays short.
 static func spawn_node_near(pos: Vector3, min_d := 45.0, max_d := 130.0) -> int:

@@ -69,38 +69,44 @@ func get_mph() -> float:
 
 
 func _build_model() -> void:
-	var paint_mat := Palette.mat(paint, 0.25, 0.75)
-	var trim := Palette.glow(Palette.VIOLET, 0.7)
+	var paint_mat := Palette.pbr(paint, 0.22, 0.75)
+	var cabin_mat := Palette.pbr(Color(0.08, 0.1, 0.13), 0.04, 0.9)
+	var trim := Palette.pbr(Color(0.12, 0.12, 0.13), 0.5, 0.3)
 	_body = Node3D.new()
 	_body.name = "Body"
 	model.add_child(_body)
-	Palette.box(_body, Vector3(2.0, 0.55, 4.3), Vector3(0, 0.45, 0), paint_mat, false, "Chassis")
-	Palette.box(_body, Vector3(1.6, 0.5, 2.0), Vector3(0, 0.95, 0.1), Palette.glass(Color(0.12, 0.25, 0.4), 0.85), false, "Cabin")
-	Palette.box(_body, Vector3(1.9, 0.08, 1.2), Vector3(0, 0.76, -1.2), paint_mat, false, "Hood")
-	Palette.box(_body, Vector3(1.4, 0.3, 0.6), Vector3(0, 0.8, 2.0), paint_mat, false, "Trunk")
-	Palette.box(_body, Vector3(2.02, 0.06, 4.0), Vector3(0, 0.18, 0), trim, false, "Underglow")
+	Palette.box(_body, Vector3(2.0, 0.42, 4.3), Vector3(0, 0.5, 0), paint_mat, false, "Chassis")
+	var hood := Palette.box(_body, Vector3(1.85, 0.1, 1.6), Vector3(0, 0.72, -1.45), paint_mat, false, "Hood")
+	hood.rotation.x = -0.12
+	Palette.box(_body, Vector3(1.6, 0.5, 1.9), Vector3(0, 0.95, 0.1), cabin_mat, false, "Cabin")
+	Palette.box(_body, Vector3(1.7, 0.35, 0.9), Vector3(0, 0.85, 1.5), paint_mat, false, "Deck")
+	Palette.box(_body, Vector3(1.9, 0.05, 0.3), Vector3(0, 1.12, 2.0), paint_mat, false, "Spoiler")
+	for sx in [-0.7, 0.7]:
+		Palette.box(_body, Vector3(0.08, 0.25, 0.05), Vector3(sx, 0.98, 2.0), paint_mat, false, "Strut")
+	Palette.box(_body, Vector3(2.02, 0.12, 0.3), Vector3(0, 0.3, -2.1), trim, false, "Splitter")
+	Palette.box(_body, Vector3(2.02, 0.1, 4.0), Vector3(0, 0.3, 0), trim, false, "Sill")
 	for sx in [-0.65, 0.65]:
-		Palette.box(_body, Vector3(0.4, 0.14, 0.1), Vector3(sx, 0.55, -2.15), Palette.glow(Palette.WARM_WHITE, 3.5), false, "Headlamp")
-		Palette.box(_body, Vector3(0.45, 0.12, 0.1), Vector3(sx, 0.6, 2.15), Palette.glow(Palette.RED, 3.0), false, "Taillamp")
+		Palette.box(_body, Vector3(0.4, 0.12, 0.1), Vector3(sx, 0.56, -2.15), Palette.mat(Color(0.95, 0.95, 0.9), 0.3, 0.0, Palette.WARM_WHITE, 1.2), false, "Headlamp")
+		Palette.box(_body, Vector3(0.45, 0.1, 0.1), Vector3(sx, 0.62, 2.15), Palette.mat(Color(0.6, 0.05, 0.05), 0.3, 0.0, Palette.RED, 1.5), false, "Taillamp")
 		var spot := SpotLight3D.new()
 		spot.position = Vector3(sx, 0.6, -2.2)
 		spot.rotation_degrees = Vector3(-6, 180, 0)
 		spot.light_color = Palette.WARM_WHITE
-		spot.light_energy = 6.0
-		spot.spot_range = 28.0
+		spot.light_energy = 3.0
+		spot.spot_range = 24.0
 		spot.spot_angle = 32.0
 		spot.shadow_enabled = false
 		_body.add_child(spot)
 		_headlights.append(spot)
-	var tyre := Palette.mat(Color(0.05, 0.05, 0.06), 0.9)
-	var rim := Palette.glow(Palette.CYAN, 1.5)
+	var tyre := Palette.pbr(Color(0.06, 0.06, 0.06), 0.9, 0.0)
+	var rim := Palette.pbr(Color(0.82, 0.84, 0.87), 0.2, 0.95)
 	for wp in [Vector3(-1.0, 0.36, -1.4), Vector3(1.0, 0.36, -1.4), Vector3(-1.0, 0.36, 1.4), Vector3(1.0, 0.36, 1.4)]:
 		var hub := Node3D.new()
 		hub.position = wp
 		model.add_child(hub)
 		var w := Palette.cylinder(hub, 0.36, 0.3, Vector3.ZERO, tyre, false, "Tyre", 16)
 		w.rotation.z = PI / 2.0
-		var r := Palette.cylinder(hub, 0.2, 0.32, Vector3.ZERO, rim, false, "Rim", 12)
+		var r := Palette.cylinder(hub, 0.22, 0.32, Vector3.ZERO, rim, false, "Rim", 12)
 		r.rotation.z = PI / 2.0
 		_wheels.append(hub)
 		if wp.z < 0:
@@ -169,7 +175,8 @@ func _physics_process(delta: float) -> void:
 		if absf(n.y) < 0.5 and n.dot(fwd) < -0.4:
 			var hit_speed := absf(forward_speed)
 			forward_speed *= 0.25
-			if hit_speed > 5.0 and _impact_cooldown <= 0.0:
+			# no damage while an NPC (valet, traffic) is at the wheel
+			if hit_speed > 5.0 and _impact_cooldown <= 0.0 and not autopilot:
 				_impact_cooldown = 0.6
 				var severity := clampf(hit_speed / max_speed, 0.0, 1.0)
 				GameState.damage_vehicle(vehicle_id, int(round(4.0 + severity * 30.0)))

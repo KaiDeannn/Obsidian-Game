@@ -31,7 +31,7 @@ const CONTACTS: Array[Dictionary] = [
 		"greeting": "Hey, how can I help you, or what do you want?"},
 ]
 const PLAYER_SPAWN := Vector3(4, 0.8, 12)
-const VEHICLE_SPAWN := Vector3(-8, 0.6, 26)  # parked on the Core ring road, facing +X
+const VEHICLE_SPAWN := Vector3(-8, 0.6, 29)  # parked in the inner lane of the Core ring road, facing +X
 
 const JOBS: Array[Dictionary] = [
 	{

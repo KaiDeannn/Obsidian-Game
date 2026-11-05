@@ -53,7 +53,8 @@ Headless regression test (no window needed):
 - **RoadNetwork.gd** — the 6×6 lattice of lane centre lines (x or z ∈ ±26, ±78, ±137): nearest node / lane point, A* road paths, spawn-node search.
 - **CameraRig.gd** — ORBIT (mouse look on foot) / CHASE (settles behind the car, stretches with speed).
 - **CityGate.gd** — Area3D portal with pulsing field; prompt on enter, **E** loads the Spire.
-- **CityBuilder.gd** — procedural 5×5-block city from `CityData.gd`: Core Plaza obelisk, The Heights towers + property villas, Neon Docks, parks, lamps, lane lines, parked cars, boundary.
+- **CityBuilder.gd** — procedural 5×5-block city from `CityData.gd`, styled as a sunlit modern metropolis: glass curtain-wall towers on white podiums with planted terraces, balconied mid-rises, mixed-use commerce blocks, roof gardens, lawns, hedges, street trees, flowerbeds, pools and fountains, dual carriageways with green medians, dashed lanes, zebra crossings, lamp posts, cafe umbrellas and benches, parked sports cars, the lake promenade. PBR materials throughout (`Palette.pbr`).
+- **TrafficDriver.gd** / **Pedestrian.gd** — cruising cars on three road loops (vehicle autopilot with lane keeping) and walking NPCs on the pavements.
 - **ObjectiveMarker.gd** — beam + ring + label at the active objective.
 
 ### UI (`scripts/ui/`)
