@@ -24,7 +24,7 @@ func _ready() -> void:
 	await _test_progression()
 	await _test_city()
 	await _test_comms_valet()
-	await _test_premium_weapons()
+	await _test_engineer_weapons()
 	await _test_cinematic()
 	await _test_battle_setup()
 	await _test_battle_matches()
@@ -51,14 +51,17 @@ func _test_progression() -> void:
 	_check(not JobManager.has_active(), "job completes after visiting every stage")
 	_check(GameState.credits == before + 300 + 15, "job pays 300 cr + 5% property perk")
 	_check(RankManager.renown == 150, "job pays 150 renown")
-	# ninja weapons: all available, equip and cycle
-	_check(CityData.PREMIUM_WEAPONS.size() == 12, "12 ninja weapons in the arsenal")
-	_check(GameState.owns_premium("dragons_breath"), "every ninja weapon is available without buying")
-	_check(GameState.equip_premium("golden_razor") and GameState.equipped_premium == "golden_razor", "equips The Golden Razor")
-	_check(GameState.cycle_premium(1) == "" and GameState.equipped_premium == "", "cycling past the last weapon returns to the standard sword")
-	_check(GameState.cycle_premium(1) == "phantom_flame", "cycling from the sword picks the first ninja weapon")
-	_check(GameState.equip_premium("") and GameState.equipped_premium == "", "unequip returns to the standard sword")
+	# engineer weapons: all available, equip and cycle
+	_check(CityData.PREMIUM_WEAPONS.size() == 10, "10 Engineer weapons in the arsenal")
+	_check(GameState.equipped_premium == "cinder_canister", "starts with the Cinder-Canister equipped")
+	_check(GameState.equip_premium("oathkeeper") and GameState.equipped_weapon()["name"] == "Oathkeeper", "equips the Oathkeeper")
+	_check(GameState.cycle_premium(-1) == "skyfall" and GameState.cycle_premium(1) == "oathkeeper", "cycling wraps around the arsenal")
 	_check(not GameState.equip_premium("not_a_weapon"), "cannot equip an unknown weapon")
+	var models_ok := true
+	for w in CityData.PREMIUM_WEAPONS:
+		if not ResourceLoader.exists(WeaponModels.MODEL_DIR + str(w["id"]) + ".glb") or not ResourceLoader.exists(w["image"]):
+			models_ok = false
+	_check(models_ok, "every weapon has an imported 3D model and its card picture")
 
 
 func _test_city() -> void:
@@ -458,92 +461,129 @@ func _test_battle_matches() -> void:
 	GameState.points = points0
 
 
-func _test_premium_weapons() -> void:
-	print("\n[Premium weapons in the Spire]")
+func _test_engineer_weapons() -> void:
+	print("\n[Engineer weapons in the Spire]")
 	var spire: Node3D = load("res://scenes/spire/SpireRuins.tscn").instantiate()
 	add_child(spire)
 	await _frames(5)
 	var hud: SpireHUD = spire.get_node("SpireHUD")
-	# use the far dummies with padded health so nothing dies here (kills would shift the
-	# renown totals the [Spire] section asserts on)
-	var dummy: TrainingDummy = spire.get_node("Enemies/Dummy5")
-	var dummy2: TrainingDummy = spire.get_node("Enemies/Dummy6")
-	var dummy3: TrainingDummy = spire.get_node("Enemies/Dummy7")
-	for dmy in [dummy, dummy2, dummy3]:
-		dmy.hp = 1000.0
-	# --- blade with a damage range + takedown heal (The Last Honour)
-	GameState.equip_premium("last_honour")
-	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
-	await _frames(2)
+	# far dummies with padded health so nothing dies here (kills would shift renown totals)
+	var d1: TrainingDummy = spire.get_node("Enemies/Dummy5")
+	var d2: TrainingDummy = spire.get_node("Enemies/Dummy4")
+	var d3: TrainingDummy = spire.get_node("Enemies/Dummy3")
+	for h in ["Hunter1", "Hunter2", "Hunter3"]:
+		spire.get_node("Enemies/" + h).queue_free()
+	var home1 := d1.global_position
+	d2.global_position = home1 + Vector3(3.0, 0, 0)
+	for dmy in [d1, d2, d3]:
+		dmy.hp = 5000.0
+	GameState.equip_premium("oathkeeper")
+	hud.class_chosen.emit(GameState.CLASS_ENGINEER)
+	await _frames(3)
 	var player: SpirePlayer = spire.player
-	_check(player.weapon.get("id", "") == "last_honour", "swordsman deploys with the equipped premium weapon")
-	_check(player.sword_pivot.get_node_or_null("Weapon_last_honour") != null, "weapon model is in the player's hand")
-	_check(hud._weapon_label.text.begins_with("The Last Honour"), "HUD shows the weapon, damage and trait")
-	var d := player.strike_damage()
-	_check(d >= 100.0 and d <= 110.0, "strike damage drawn from the 100-110 range (%.0f)" % d)
-	player.global_position = dummy.global_position + Vector3(0, 0, 2.2)
-	player.rotation.y = 0.0
-	await _frames(2)
-	var hp0 := dummy.hp
-	player._swing()
-	await _frames(12)
-	_check(dummy.hp <= hp0 - 100.0, "premium blade hit lands for 100+ (%.0f -> %.0f)" % [hp0, dummy.hp])
-	player.hp = 50.0
-	player.on_takedown()
-	_check(player.hp == 75.0, "The Last Honour heals 25 on a takedown")
-	# --- Q swaps weapons live without redeploying (wait for the swing to finish first)
-	await _frames(30)
-	GameState.equip_premium("")
-	player.cycle_weapon(1)
-	_check(player.weapon.get("id", "") == "phantom_flame" and player.sword_pivot.get_node_or_null("Weapon_phantom_flame") != null, "Q cycles to the next weapon in hand")
-	_check(hud._weapon_label.text.begins_with("The Phantom Flame"), "HUD follows the weapon swap")
-	# --- thrown weapon that returns (The Crescent)
-	GameState.equip_premium("the_crescent")
-	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
-	await _frames(2)
-	player = spire.player
-	_check(WeaponModels.is_thrown(player.weapon), "The Crescent is a thrown weapon")
-	player.global_position = dummy2.global_position + Vector3(0, 0, 6.0)
+	_check(player.combat_class == GameState.CLASS_ENGINEER and player.weapon.get("id", "") == "oathkeeper", "Engineer class deploys with the equipped weapon")
+	_check(player.tool_pivot.visible and player.tool_pivot.get_node_or_null("Weapon_oathkeeper") != null and not player.sword_pivot.visible, "the launcher model is in the Engineer's hands")
+	_check(hud._weapon_label.text.begins_with("Oathkeeper") and hud._state_label.text.begins_with("LMB to fire"), "HUD shows the weapon, type, damage and effect")
+	# --- launcher: arcing round, area blast on two targets
+	player.global_position = home1 + Vector3(0, 0, 12.0)
 	player.rotation.y = 0.0
 	player.pivot.rotation.x = 0.0
-	await _frames(2)
-	var hp2 := dummy2.hp
-	player._throw()
-	_check(player._blade_out, "thrown blade leaves the hand")
-	await _frames(40)
-	_check(dummy2.hp < hp2, "thrown Crescent damages the target (%.0f -> %.0f)" % [hp2, dummy2.hp])
-	var waited := 0
-	while player._blade_out and waited < 240:
-		await _frames(10)
-		waited += 10
-	_check(not player._blade_out, "Crescent returns to the hand")
-	# --- Thunder Chain sweep hits everything close
-	GameState.equip_premium("thunder_chain")
-	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
-	await _frames(2)
-	player = spire.player
-	dummy.hp = 1000.0
-	dummy2.hp = 1000.0
-	dummy2.global_position = dummy.global_position + Vector3(3.0, 0, 0)
-	player.global_position = dummy.global_position + Vector3(1.5, 0, 1.5)
-	await _frames(2)
-	player._sweep()
-	await _frames(2)
-	_check(dummy.hp < 1000.0 and dummy2.hp < 1000.0, "Thunder Chain sweep hits two enemies at once")
-	# --- Dragon's Breath flame wave on the third strike
-	GameState.equip_premium("dragons_breath")
-	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
-	await _frames(2)
-	player = spire.player
-	dummy3.hp = 1000.0
-	player.global_position = dummy3.global_position + Vector3(0, 0, 4.5)
-	player.rotation.y = 0.0
-	await _frames(2)
-	player._strike_count = 2
-	player._swing()
 	await _frames(3)
-	_check(dummy3.hp < 1000.0, "Dragon's Breath flame wave reaches a target 4.5 m away")
-	GameState.equip_premium("")
+	player._use_weapon()
+	var hit := await _wait_until(func() -> bool: return d1.hp < 5000.0, 3.0)
+	_check(hit and 5000.0 - d1.hp <= 100.0 and 5000.0 - d1.hp >= 40.0, "Oathkeeper round lands and blasts the target (%.0f)" % (5000.0 - d1.hp))
+	_check(d2.hp < 5000.0, "the blast also catches a second enemy 3 m away")
+	# --- Q switches weapons live
+	player.cycle_weapon(1)
+	_check(player.weapon.get("id", "") == "sol_orb" and player.tool_pivot.get_node_or_null("Weapon_sol_orb") != null and hud._weapon_label.text.begins_with("Sol-Orb"), "Q swaps to the next weapon in hand and on the HUD")
+	# --- Sol-Orb: burst, then the burn zone keeps ticking
+	player.global_position = home1 + Vector3(0, 0, 17.0)
+	d1.hp = 5000.0
+	await _frames(3)
+	player._next_use = 0.0
+	player._use_weapon()
+	await _wait_until(func() -> bool: return d1.hp < 5000.0, 3.5)
+	var after_burst := d1.hp
+	await _wait_seconds(2.2)
+	_check(after_burst < 5000.0 and d1.hp < after_burst, "Sol-Orb bursts and its embers keep burning (%.0f then %.0f)" % [5000.0 - after_burst, 5000.0 - d1.hp])
+	# --- Frost-Stasis freezes
+	GameState.equip_premium("frost_stasis")
+	player.cycle_weapon(0)
+	await _wait_seconds(4.2)          # let the Sol-Orb embers burn out first
+	d1.hp = 5000.0
+	player._next_use = 0.0
+	player._use_weapon()
+	var frozen := await _wait_until(func() -> bool: return d1.is_frozen(), 3.5)
+	_check(frozen and 5000.0 - d1.hp <= 45.0, "Frost-Stasis freezes the target for light damage (%.0f)" % (5000.0 - d1.hp))
+	# --- Scarlet-Fuse: timed
+	GameState.equip_premium("scarlet_fuse")
+	player.cycle_weapon(0)
+	await _wait_seconds(4.5)          # let the burn zone and the freeze expire
+	d1.hp = 5000.0
+	player._next_use = 0.0
+	player._use_weapon()
+	await _wait_seconds(1.6)
+	_check(d1.hp == 5000.0, "Scarlet-Fuse does not go off on landing")
+	var went := await _wait_until(func() -> bool: return d1.hp < 5000.0, 3.0)
+	_check(went and 5000.0 - d1.hp >= 43.0, "Scarlet-Fuse detonates when the 2.5 s dial runs out (%.0f)" % (5000.0 - d1.hp))
+	# --- Void-Orb drags enemies together
+	GameState.equip_premium("void_orb")
+	player.cycle_weapon(0)
+	await _wait_seconds(2.0)          # the concussion knockback has to settle
+	for dmy in [d1, d2]:
+		dmy.velocity = Vector3.ZERO
+	d1.global_position = home1
+	d2.global_position = home1 + Vector3(5.0, 0, 0)
+	d1.hp = 5000.0
+	d2.hp = 5000.0
+	await _frames(4)
+	player._next_use = 0.0
+	player._use_weapon()
+	await _wait_until(func() -> bool: return d1.hp < 5000.0 or d2.hp < 5000.0, 4.5)
+	await _wait_seconds(0.3)
+	var gap := d1.global_position.distance_to(d2.global_position)
+	_check(gap < 3.5, "Void-Orb pulls enemies inward before it crushes them (gap %.1f m)" % gap)
+	# --- Hellfire-Mine: arms, then proximity burst; three at a time
+	GameState.equip_premium("hellfire_mine")
+	player.cycle_weapon(0)
+	d3.hp = 5000.0
+	player.global_position = d3.global_position + Vector3(0, 0, 3.0)
+	player.rotation.y = 0.0
+	await _frames(3)
+	player._next_use = 0.0
+	player._use_weapon()
+	_check(player.active_mines() == 1, "Hellfire-Mine is placed ahead of the Engineer")
+	await _wait_seconds(0.5)
+	_check(d3.hp == 5000.0, "the mine is inert while it arms")
+	var boom := await _wait_until(func() -> bool: return d3.hp < 5000.0, 2.5)
+	_check(boom and player.active_mines() == 0, "armed mine bursts on the enemy standing within reach")
+	player.global_position = Vector3(0, 0.6, 48)
+	await _frames(3)
+	for i in range(4):
+		player._next_use = 0.0
+		player._use_weapon()
+		player.global_position += Vector3(3.0, 0, 0)
+		await _frames(3)
+	_check(player.active_mines() == 3, "only three mines stay active; the oldest is recalled")
+	# --- Sunstone: huge burst, flash, and it hurts a thrower who stands too close
+	GameState.equip_premium("sunstone")
+	player.cycle_weapon(0)
+	var flashes := [0]
+	player.flash_requested.connect(func(_s: float) -> void: flashes[0] += 1)
+	player.global_position = Vector3(20, 0.6, 48)
+	player.pivot.rotation.x = -1.2
+	player.hp = player.max_hp
+	await _frames(3)
+	player._next_use = 0.0
+	player._use_weapon()
+	await _wait_until(func() -> bool: return flashes[0] > 0, 3.0)
+	_check(flashes[0] > 0 and player.hp < player.max_hp, "Sunstone blinds and burns a thrower who stands too close (hp %.0f)" % player.hp)
+	# --- the other classes are untouched
+	hud.class_chosen.emit(GameState.CLASS_SWORDSMAN)
+	await _frames(2)
+	player = spire.player
+	_check(player.weapon.is_empty() and player.sword_pivot.visible and not player.tool_pivot.visible, "Swordsman still carries the obsidian blade only")
+	GameState.equip_premium("cinder_canister")
 	spire.queue_free()
 	await _frames(2)
 

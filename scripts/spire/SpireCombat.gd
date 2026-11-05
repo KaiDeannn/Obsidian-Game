@@ -39,7 +39,7 @@ var _spectating := false
 
 
 func _ready() -> void:
-	sun.rotation_degrees = Vector3(-28, -140, 0)
+	sun.rotation_degrees = Vector3(-38, 28, 0)       # low sun from behind the spawn
 	hud.class_chosen.connect(_deploy)
 	hud.overlay_changed.connect(_on_overlay_changed)
 	hud.return_to_city.connect(_return_to_city)
@@ -69,6 +69,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_deploy(GameState.CLASS_SWORDSMAN)
 		elif event.is_action_pressed("class_2"):
 			_deploy(GameState.CLASS_SNIPER)
+		elif event.is_action_pressed("class_3"):
+			_deploy(GameState.CLASS_ENGINEER)
 		return
 	if hud.results_open():
 		return
@@ -79,10 +81,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			hud.toggle_pause()
 	elif event.is_action_pressed("store"):
 		hud.toggle_store()
-	elif event.is_action_pressed("weapon_next") and is_instance_valid(player) and not hud.is_overlay_open():
+	elif event.is_action_pressed("weapon_next") and is_instance_valid(player) and not hud.is_overlay_open() and player.combat_class == GameState.CLASS_ENGINEER:
 		player.cycle_weapon(1)
 		var w := player.weapon
-		hud.toast(("Weapon: %s" % w["name"]) if not w.is_empty() else "Weapon: standard sword", UIKit.rarity_color(w["rarity"]) if not w.is_empty() else UIKit.TEXT_DIM)
+		hud.toast("%s  -  %s" % [w["name"], w["type"]], UIKit.rarity_color(w["rarity"]))
 	elif event is InputEventMouseButton and event.pressed and not hud.is_overlay_open() and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -139,6 +141,8 @@ func _deploy(combat_class: String) -> void:
 	hud.toast("Deployed as %s  -  defeat targets to earn Points and Renown" % combat_class, UIKit.ACCENT)
 	if combat_class == GameState.CLASS_SNIPER:
 		hud.toast("Vantage platforms in the NE and SW corners give clean sightlines", UIKit.TEXT_DIM)
+	elif combat_class == GameState.CLASS_ENGINEER:
+		hud.toast("LMB fires, throws or places your weapon  -  Q switches between all ten", UIKit.TEXT_DIM)
 	else:
 		hud.toast("Block just as a Hunter strikes to parry and stagger it", UIKit.TEXT_DIM)
 
@@ -161,8 +165,6 @@ func _on_enemy_defeated(dummy: TrainingDummy) -> void:
 	match_renown += dummy.renown_reward
 	GameState.add_points(dummy.points_reward)
 	RankManager.add_renown(dummy.renown_reward)
-	if is_instance_valid(player):
-		player.on_takedown()
 	hud.reward_popup("+%d PTS   +%d RENOWN" % [dummy.points_reward, dummy.renown_reward])
 	if kills % 5 == 0:
 		hud.toast("Takedown streak: %d   Match total: %d pts / %d renown" % [kills, match_points, match_renown], UIKit.GREEN)
@@ -254,8 +256,6 @@ func _on_fighter_defeated(f: TrainingDummy) -> void:
 			player_kills += 1
 			GameState.add_points(bf.points_reward)
 			RankManager.add_renown(bf.renown_reward)
-			if is_instance_valid(player):
-				player.on_takedown()
 			hud.reward_popup("+%d PTS   +%d RENOWN" % [bf.points_reward, bf.renown_reward])
 		match fight["mode"]:
 			"solo":

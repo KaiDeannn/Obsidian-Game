@@ -237,6 +237,26 @@ func stagger(label := "PARRIED") -> void:
 	_floating_text(label, Palette.CYAN, global_position + Vector3(0, 2.4, 0))
 
 
+## Frost-Stasis: held in place for `seconds`.
+func freeze(seconds: float) -> void:
+	if not alive:
+		return
+	state = State.STAGGER
+	_state_until = _now() + seconds
+	velocity = Vector3.ZERO
+	_body_mat.emission_enabled = true
+	_body_mat.emission = Color(0.4, 0.9, 1.0)
+	_body_mat.emission_energy_multiplier = 1.8
+	var tw := create_tween()
+	tw.tween_interval(seconds)
+	tw.tween_property(_body_mat, "emission_energy_multiplier", 0.0, 0.3)
+	_floating_text("FROZEN", Color(0.4, 0.9, 1.0), global_position + Vector3(0, 2.4, 0))
+
+
+func is_frozen() -> bool:
+	return state == State.STAGGER and _now() < _state_until
+
+
 func take_damage(amount: float, hit_pos: Vector3, headshot: bool, source: Node3D = null) -> void:
 	if not alive:
 		return

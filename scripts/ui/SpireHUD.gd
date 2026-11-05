@@ -288,10 +288,11 @@ func bind_player(p: SpirePlayer) -> void:
 	p.block_state.connect(_on_block)
 	p.reloading.connect(func(d: float) -> void: _state_label.text = "RELOADING"; get_tree().create_timer(d).timeout.connect(func() -> void: if _state_label.text == "RELOADING": _state_label.text = ""))
 	p.weapon_changed.connect(func(_w: Dictionary) -> void: _refresh_weapon_line())
+	p.flash_requested.connect(flash)
 	var is_sword := p.combat_class == GameState.CLASS_SWORDSMAN
 	_class_label.text = p.combat_class.to_upper()
-	_class_label.add_theme_color_override("font_color", UIKit.ACCENT2 if is_sword else UIKit.ACCENT)
-	_ammo_label.visible = not is_sword
+	_class_label.add_theme_color_override("font_color", UIKit.ACCENT2 if is_sword else (UIKit.AMBER if p.combat_class == GameState.CLASS_ENGINEER else UIKit.ACCENT))
+	_ammo_label.visible = p.combat_class == GameState.CLASS_SNIPER
 	_refresh_weapon_line()
 	_on_health(p.hp, p.max_hp)
 	_on_ammo(p.ammo, p.reserve)
@@ -300,16 +301,33 @@ func bind_player(p: SpirePlayer) -> void:
 func _refresh_weapon_line() -> void:
 	if _player == null:
 		return
-	var is_sword := _player.combat_class == GameState.CLASS_SWORDSMAN
+	var cls := _player.combat_class
 	var w := _player.weapon
-	if is_sword and not w.is_empty():
-		_weapon_label.text = "%s   DMG %d-%d   %s" % [w["name"], int(w["damage_min"]), int(w["damage_max"]), w["trait_desc"]]
+	if cls == GameState.CLASS_ENGINEER and not w.is_empty():
+		_weapon_label.text = "%s   %s   DMG %d-%d   %s" % [w["name"], str(w["type"]).to_upper(), int(w["damage_min"]), int(w["damage_max"]), w["trait_desc"]]
 		_weapon_label.add_theme_color_override("font_color", UIKit.rarity_color(w["rarity"]))
-		_state_label.text = ("THROWN  -  LMB to throw, RMB to block" if WeaponModels.is_thrown(w) else "MELEE  -  RMB to block") + "  -  Q next weapon"
-	else:
-		_weapon_label.text = "Standard sword   DMG 38  -  Q for ninja weapons" if is_sword else "Voidpiercer rifle"
+		var verb := "fire" if WeaponModels.is_launcher(w) else ("place" if WeaponModels.kind(w) == "mine" else "throw")
+		_state_label.text = "LMB to %s  -  Q next weapon" % verb
+	elif cls == GameState.CLASS_SWORDSMAN:
+		_weapon_label.text = "Obsidian blade   DMG 38"
 		_weapon_label.add_theme_color_override("font_color", UIKit.TEXT_DIM)
-		_state_label.text = "MELEE  -  RMB to block" if is_sword else "RMB to aim"
+		_state_label.text = "MELEE  -  RMB to block"
+	else:
+		_weapon_label.text = "Voidpiercer rifle"
+		_weapon_label.add_theme_color_override("font_color", UIKit.TEXT_DIM)
+		_state_label.text = "RMB to aim"
+
+
+## Sunstone: a white-out that fades. strength 0..1.
+func flash(strength: float) -> void:
+	var white := ColorRect.new()
+	white.color = Color(1, 1, 1, clampf(strength, 0.0, 1.0))
+	white.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(white)
+	UIKit.full_rect(white)
+	var tw := white.create_tween()
+	tw.tween_property(white, "color:a", 0.0, 1.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(white.queue_free)
 
 
 func _on_health(hp: float, max_hp: float) -> void:
@@ -405,7 +423,10 @@ func _build_class_select() -> void:
 	row.add_child(_class_card(GameState.CLASS_SNIPER, "2", UIKit.ACCENT,
 		"Long rifle with 6x optic.",
 		["RMB  -  Aim: first-person scope, 6.0x", "LMB  -  Fire (70 dmg, x2 headshot)", "Bullet adjustment  -  drop vs 60m zero + spread", "5-round magazine, R to reload"]))
-	v.add_child(UIKit.label("Press 1 or 2, or click a class to deploy", 13, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER))
+	row.add_child(_class_card(GameState.CLASS_ENGINEER, "3", UIKit.AMBER,
+		"Launchers, grenades and mines.",
+		["LMB  -  Fire, throw or place the equipped weapon", "Q  -  Switch between all ten Engineer weapons", "Blast, burn, freeze, concussion, implosion, shatter", "Hellfire-Mines hold ground: three active at a time"]))
+	v.add_child(UIKit.label("Press 1, 2 or 3, or click a class to deploy", 13, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER))
 	var back := UIKit.button("Return to Nova Aetheris", UIKit.TEXT_DIM, 13, 34)
 	back.pressed.connect(func() -> void: return_to_city.emit())
 	v.add_child(back)
@@ -413,7 +434,7 @@ func _build_class_select() -> void:
 
 func _class_card(cls: String, key: String, color: Color, blurb: String, lines: Array) -> Control:
 	var p := UIKit.panel(UIKit.CARD_BG, 16, Color(color.r, color.g, color.b, 0.6), 20)
-	p.custom_minimum_size = Vector2(360, 0)
+	p.custom_minimum_size = Vector2(340, 0)
 	var v := UIKit.vbox(10)
 	p.add_child(v)
 	var head := UIKit.hbox(10)

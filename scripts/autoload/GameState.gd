@@ -14,12 +14,13 @@ signal vehicle_damage_changed(vehicle_id: String, damage: int)
 
 const CLASS_SWORDSMAN := "Swordsman"
 const CLASS_SNIPER := "Sniper"
+const CLASS_ENGINEER := "Engineer"
 
 var credits: int = 2500
 var points: int = 0
-## Ninja weapons (CityData.PREMIUM_WEAPONS). All twelve are available; one is equipped.
-## Premium weapon carried into the Spire (Swordsman) and shown on the player's back in the city.
-var equipped_premium: String = ""
+## Engineer weapons (CityData.PREMIUM_WEAPONS). All ten are available; one is equipped.
+## Engineer weapon carried into the Spire and shown on the player's back in the city.
+var equipped_premium: String = "cinder_canister"
 var selected_class: String = CLASS_SWORDSMAN
 var owned_properties: Array[String] = []
 var owned_gear: Array[String] = []
@@ -68,28 +69,29 @@ func owns_premium(weapon_id: String) -> bool:
 	return not CityData.premium_weapon(weapon_id).is_empty()
 
 
-## Equip one of the ninja weapons ("" to go back to the standard sword).
+## Equip one of the Engineer weapons.
 func equip_premium(weapon_id: String) -> bool:
-	if weapon_id != "" and not owns_premium(weapon_id):
+	if not owns_premium(weapon_id):
 		return false
 	equipped_premium = weapon_id
 	premium_equipped.emit(weapon_id)
 	return true
 
 
-## Next / previous weapon in the catalogue (wraps; the standard sword sits between the ends).
+## Next / previous weapon in the catalogue (wraps).
 func cycle_premium(step: int) -> String:
-	var ids: Array = [""]
+	var ids: Array = []
 	for w in CityData.PREMIUM_WEAPONS:
 		ids.append(w["id"])
-	var i := ids.find(equipped_premium)
+	var i := maxi(ids.find(equipped_premium), 0)
 	var nxt: String = ids[(i + step + ids.size()) % ids.size()]
 	equip_premium(nxt)
 	return nxt
 
 
 func equipped_weapon() -> Dictionary:
-	return CityData.premium_weapon(equipped_premium) if equipped_premium != "" else {}
+	var w := CityData.premium_weapon(equipped_premium)
+	return w if not w.is_empty() else CityData.PREMIUM_WEAPONS[0]
 
 
 # ---------------------------------------------------------------- class
@@ -173,7 +175,7 @@ func _ensure_input_actions() -> void:
 	var key_actions := {
 		"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D,
 		"sprint": KEY_SHIFT, "jump": KEY_SPACE, "interact": KEY_E, "phone": KEY_P,
-		"reload": KEY_R, "store": KEY_B, "class_1": KEY_1, "class_2": KEY_2, "weapon_next": KEY_Q,
+		"reload": KEY_R, "store": KEY_B, "class_1": KEY_1, "class_2": KEY_2, "class_3": KEY_3, "weapon_next": KEY_Q,
 	}
 	for action: String in key_actions:
 		if not InputMap.has_action(action):

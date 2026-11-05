@@ -161,6 +161,13 @@ func _pick_target() -> Node3D:
 
 
 func _process_ranged(delta: float) -> void:
+	if state == State.STAGGER:
+		# frozen / staggered: no moving, no firing
+		velocity.x = move_toward(velocity.x, 0.0, 20.0 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, 20.0 * delta)
+		if _time >= _state_until:
+			state = State.IDLE
+		return
 	var move_dir := Vector3.ZERO
 	if is_instance_valid(target):
 		var to := target.global_position - global_position

@@ -17,6 +17,7 @@ signal shot_fired()
 signal reloading(duration: float)
 signal died()
 signal weapon_changed(weapon: Dictionary)
+signal flash_requested(strength: float)
 
 const MAG_SIZE := 5
 const BULLET_SPEED := 600.0
@@ -35,13 +36,12 @@ const RIFLE_DAMAGE := 70.0
 @export var max_hp := 100.0
 
 var combat_class: String = GameState.CLASS_SWORDSMAN
-## Equipped Premium Shop weapon (CityData.PREMIUM_WEAPONS entry) - empty for the standard sword.
+## The Engineer's equipped weapon (CityData.PREMIUM_WEAPONS entry); empty for other classes.
 var weapon: Dictionary = {}
+var tool_pivot: Node3D
 var _held_weapon: Node3D
-var _blade_out := false
-var _next_throw_time := 0.0
-var _strike_count := 0
-var _sweeping := false
+var _next_use := 0.0
+var _mines: Array = []
 var hp := 100.0
 var alive := true
 var input_enabled := true
@@ -88,7 +88,7 @@ func _ready() -> void:
 	collision_mask = Palette.LAYER_WORLD | Palette.LAYER_ENEMY
 	arm.add_excluded_object(get_rid())
 	_build_model()
-	if combat_class == GameState.CLASS_SWORDSMAN:
+	if combat_class == GameState.CLASS_ENGINEER:
 		weapon = GameState.equipped_weapon()
 	_apply_class_visuals()
 	_apply_weapon()
@@ -183,170 +183,157 @@ func _build_model() -> void:
 	hitbox.add_child(hb_shape)
 	model.add_child(hitbox)
 
+	# Engineer: the equipped launcher / grenade / mine is held on the right side.
+	tool_pivot = Node3D.new()
+	tool_pivot.name = "ToolPivot"
+	tool_pivot.position = Vector3(0.36, 1.18, -0.28)
+	model.add_child(tool_pivot)
+
 
 func _apply_class_visuals() -> void:
 	var is_sword := combat_class == GameState.CLASS_SWORDSMAN
+	var is_engineer := combat_class == GameState.CLASS_ENGINEER
 	sword_pivot.visible = is_sword
 	shield.visible = is_sword
-	rifle.visible = not is_sword
-	_suit_mat.albedo_color = Color(0.16, 0.1, 0.2) if is_sword else Color(0.08, 0.14, 0.2)
+	rifle.visible = combat_class == GameState.CLASS_SNIPER
+	tool_pivot.visible = is_engineer
+	if is_sword:
+		_suit_mat.albedo_color = Color(0.16, 0.1, 0.2)
+	elif is_engineer:
+		_suit_mat.albedo_color = Color(0.62, 0.45, 0.14)
+	else:
+		_suit_mat.albedo_color = Color(0.08, 0.14, 0.2)
 
 
-# ------------------------------------------------------------------ premium weapon
+# ------------------------------------------------------------------ engineer
 func _apply_weapon() -> void:
 	if is_instance_valid(_held_weapon):
 		_held_weapon.queue_free()
 		_held_weapon = null
-	var cs0 := hitbox.get_child(0) as CollisionShape3D
-	(cs0.shape as BoxShape3D).size.z = 2.2
-	hitbox.position.z = -1.3
-	for part in ["Blade", "BladeEdge", "Guard", "Grip"]:
-		var n := sword_pivot.get_node_or_null(part)
-		if n:
-			n.visible = weapon.is_empty()
-	if weapon.is_empty():
+	if combat_class != GameState.CLASS_ENGINEER or weapon.is_empty():
 		return
 	_held_weapon = WeaponModels.build(weapon)
-	if WeaponModels.is_thrown(weapon):
-		_held_weapon.position = Vector3(0, 0, -0.35)
-		_held_weapon.rotation.x = PI * 0.5
-	sword_pivot.add_child(_held_weapon)
-	if _trait() == "starlit":
-		var cs := hitbox.get_child(0) as CollisionShape3D
-		(cs.shape as BoxShape3D).size.z *= 1.4
-		hitbox.position.z = -1.6
+	tool_pivot.add_child(_held_weapon)
+	tool_pivot.position = _tool_rest()
+	tool_pivot.rotation = Vector3(0.0, 0.0, -0.12) if WeaponModels.is_launcher(weapon) else Vector3.ZERO
 
 
-## Q in the Spire: swap to the next ninja weapon without redeploying.
+## Where the weapon sits: launchers on the right shoulder, grenades and the mine in the hand.
+func _tool_rest() -> Vector3:
+	if WeaponModels.is_launcher(weapon):
+		return Vector3(0.42, 1.34, -0.12)
+	return Vector3(0.5, 1.12, -0.3)
+
+
+## Q in the Spire: swap to the next Engineer weapon without redeploying.
 func cycle_weapon(step: int) -> void:
-	if combat_class != GameState.CLASS_SWORDSMAN or _blade_out or _attacking or _sweeping:
+	if combat_class != GameState.CLASS_ENGINEER:
 		return
 	GameState.cycle_premium(step)
 	weapon = GameState.equipped_weapon()
-	_strike_count = 0
 	_apply_weapon()
 	weapon_changed.emit(weapon)
 
 
-func _trait() -> String:
-	return str(weapon.get("trait", ""))
-
-
-func _swing_scale() -> float:
-	match _trait():
-		"phantom": return 0.7
-		"quickdraw": return 0.6
-	return 1.0
-
-
-## Damage for one melee strike from the current weapon.
-func strike_damage() -> float:
-	if weapon.is_empty():
-		return SWORD_DAMAGE
-	return randf_range(float(weapon["damage_min"]), float(weapon["damage_max"]))
-
-
-func on_takedown() -> void:
-	if _trait() == "honour" and alive:
-		hp = minf(max_hp, hp + 25.0)
-		health_changed.emit(hp, max_hp)
-		_flash_suit(Palette.GOLD)
-
-
-func _apply_hit(body: Node3D) -> void:
-	var dmg := strike_damage()
-	var crit := false
-	if _trait() == "starlit" and randf() < 0.25:
-		dmg *= 2.0
-		crit = true
-	var hit_pos: Vector3 = body.global_position + Vector3(0, 1.3, 0)
-	body.take_damage(dmg, hit_pos, false, self)
-	if crit and body.has_method("_floating_text"):
-		body._floating_text("CRIT", weapon["color"], hit_pos + Vector3(0, 0.6, 0))
-	if _trait() == "pull":
-		var pull := global_position - body.global_position
-		pull.y = 0.0
-		if body is CharacterBody3D:
-			(body as CharacterBody3D).velocity += pull.normalized() * 7.0
-		if body.has_method("stagger"):
-			body.stagger("PULLED")
-	hit_landed.emit(body, dmg, false)
-
-
-func _flame_wave() -> void:
-	var fwd := -global_transform.basis.z
-	var color: Color = weapon["color"]
-	var wave := Palette.sphere(get_tree().current_scene, 1.0, Vector3.ZERO, Palette.translucent_glow(color, 0.45, 3.0), "FlameWave")
-	wave.global_position = global_position + Vector3(0, 1.0, 0) + fwd * 3.5
-	wave.scale = Vector3(0.6, 0.4, 0.6)
-	var tw := wave.create_tween()
-	tw.tween_property(wave, "scale", Vector3(4.0, 1.0, 4.5), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_property(wave, "transparency", 1.0, 0.45)
-	tw.tween_callback(wave.queue_free)
-	for e in get_tree().get_nodes_in_group("enemy"):
-		if not (e is Node3D) or not e.has_method("take_damage") or e.get("alive") == false:
-			continue
-		var to: Vector3 = (e as Node3D).global_position - global_position
-		to.y = 0.0
-		if to.length() <= 6.0 and fwd.dot(to.normalized()) > 0.5:
-			var dmg := strike_damage() * 0.5
-			e.take_damage(dmg, (e as Node3D).global_position + Vector3(0, 1.4, 0), false, self)
-			if e.has_method("_floating_text"):
-				e._floating_text("DRAGONFIRE", color, (e as Node3D).global_position + Vector3(0, 2.3, 0))
-			hit_landed.emit(e, dmg, false)
-
-
-func _throw() -> void:
-	var now := _now()
-	if _blade_out or is_blocking or now < _next_throw_time:
-		return
-	_next_throw_time = now + (0.35 if _trait() == "razor" else 0.6)
-	var blade := ThrownBlade.new()
+func _aim_dir() -> Vector3:
 	var vp_centre := get_viewport().get_visible_rect().size * 0.5
-	var dir := camera.project_ray_normal(vp_centre)
-	get_tree().current_scene.add_child(blade)
-	blade.global_position = global_position + Vector3(0, 1.3, 0) + (-global_transform.basis.z) * 0.8
-	blade.launch(weapon, self, dir)
-	blade.hit.connect(func(target: Node3D, dmg: float) -> void: hit_landed.emit(target, dmg, false))
-	var returns := _trait() == "returns"
-	if returns:
-		_blade_out = true
+	return camera.project_ray_normal(vp_centre)
+
+
+func _muzzle_pos() -> Vector3:
+	return global_position + Vector3(0, 1.3, 0) - global_transform.basis.z * 0.9 + global_transform.basis.x * 0.32
+
+
+## LMB as the Engineer: fire the launcher, throw the grenade or place the mine.
+func _use_weapon() -> void:
+	if weapon.is_empty():
+		return
+	var now := _now()
+	if now < _next_use:
+		return
+	_next_use = now + float(weapon.get("cooldown", 1.2))
+	var w := weapon
+	match WeaponModels.kind(w):
+		"launcher":
+			var shots := int(w.get("burst", 1))
+			for i in range(shots):
+				if i > 0:
+					await get_tree().create_timer(0.16).timeout
+				if not alive or not is_inside_tree():
+					return
+				_fire_round(w)
+		"mine":
+			_place_mine(w)
+		_:
+			_throw_grenade(w)
+
+
+func _spawn_explosive() -> Explosive:
+	var e := Explosive.new()
+	get_tree().current_scene.add_child(e)
+	return e
+
+
+func _fire_round(w: Dictionary) -> void:
+	var e := _spawn_explosive()
+	e.launch(w, self, _muzzle_pos(), _aim_dir() * float(w.get("speed", 32.0)), "impact", 0.0, float(w.get("gravity", 0.5)))
+	pivot.rotation.x += 0.03
+	var color: Color = w.get("color", Palette.AMBER)
+	var flash := Palette.sphere(get_tree().current_scene, 0.16, Vector3.ZERO, Palette.glow(color, 5.0), "MuzzleFlash")
+	flash.global_position = _muzzle_pos()
+	var tw := flash.create_tween()
+	tw.tween_property(flash, "scale", Vector3(0.1, 0.1, 0.1), 0.1)
+	tw.tween_callback(flash.queue_free)
+	var kick := create_tween()
+	var rest := _tool_rest()
+	kick.tween_property(tool_pivot, "position:z", rest.z + 0.1, 0.05)
+	kick.tween_property(tool_pivot, "position:z", rest.z, 0.2)
+	shot_fired.emit()
+
+
+func _throw_grenade(w: Dictionary) -> void:
+	var e := _spawn_explosive()
+	var timed := float(w.get("fuse", 0.0)) > 0.0
+	var from := global_position + Vector3(0, 1.5, 0) - global_transform.basis.z * 0.7 + global_transform.basis.x * 0.3
+	e.launch(w, self, from, _aim_dir() * 15.0 + Vector3.UP * 5.0, "timed" if timed else "impact", float(w.get("fuse", 0.0)), 1.0)
+	# throwing arm: the hand comes forward and the next grenade is drawn
+	if is_instance_valid(_held_weapon):
 		_held_weapon.visible = false
-		blade.returned.connect(func() -> void:
-			_blade_out = false
+		get_tree().create_timer(0.45).timeout.connect(func() -> void:
 			if is_instance_valid(_held_weapon):
 				_held_weapon.visible = true)
-	# throwing arm flick
 	var tw := create_tween()
-	tw.tween_property(sword_pivot, "rotation", Vector3(-1.4, 0.0, -0.3), 0.08)
-	tw.tween_property(sword_pivot, "rotation", _rest_sword, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(tool_pivot, "position", Vector3(0.45, 1.55, -0.6), 0.1)
+	tw.tween_property(tool_pivot, "position", _tool_rest(), 0.3)
+	shot_fired.emit()
 
 
-## Thunder Chain: a full-circle sweep that hits everything close.
-func _sweep() -> void:
-	if _sweeping or is_blocking:
-		return
-	_sweeping = true
-	var color: Color = weapon["color"]
-	var ring := Palette.cylinder(get_tree().current_scene, 1.0, 0.08, Vector3.ZERO, Palette.translucent_glow(color, 0.5, 3.0), false, "StormRing", 24)
-	ring.global_position = global_position + Vector3(0, 0.9, 0)
-	ring.scale = Vector3(0.3, 1.0, 0.3)
-	var tw := ring.create_tween()
-	tw.tween_property(ring, "scale", Vector3(4.5, 1.0, 4.5), 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_property(ring, "transparency", 1.0, 0.4)
-	tw.tween_callback(ring.queue_free)
-	var spin := create_tween()
-	spin.tween_property(sword_pivot, "rotation:y", sword_pivot.rotation.y + TAU, 0.45)
-	spin.tween_callback(func() -> void:
-		sword_pivot.rotation = _rest_sword
-		_sweeping = false)
-	for e in get_tree().get_nodes_in_group("enemy"):
-		if not (e is Node3D) or not e.has_method("take_damage") or e.get("alive") == false:
-			continue
-		if (e as Node3D).global_position.distance_to(global_position) <= 4.5:
-			var dmg := strike_damage()
-			e.take_damage(dmg, (e as Node3D).global_position + Vector3(0, 1.3, 0), false, self)
-			hit_landed.emit(e, dmg, false)
+func _place_mine(w: Dictionary) -> void:
+	var live: Array = []
+	for m in _mines:
+		if is_instance_valid(m) and not (m as Explosive).done:
+			live.append(m)
+	_mines = live
+	while _mines.size() >= int(w.get("max_active", 3)):
+		var oldest: Explosive = _mines.pop_front()
+		oldest.queue_free()
+	var spot := global_position - global_transform.basis.z * 1.6
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 1.5, spot + Vector3.DOWN * 4.0, Palette.LAYER_WORLD)
+	var hit := space.intersect_ray(q)
+	var ground: Vector3 = hit["position"] if not hit.is_empty() else spot
+	var e := _spawn_explosive()
+	e.launch(w, self, ground + Vector3(0, 0.02, 0), Vector3.ZERO, "proximity")
+	_mines.append(e)
+	shot_fired.emit()
+
+
+func active_mines() -> int:
+	var n := 0
+	for m in _mines:
+		if is_instance_valid(m) and not (m as Explosive).done:
+			n += 1
+	return n
 
 
 # ------------------------------------------------------------------ input
@@ -362,12 +349,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("aim_block"):
 		if combat_class == GameState.CLASS_SNIPER:
 			set_aiming(true)
-		else:
+		elif combat_class == GameState.CLASS_SWORDSMAN:
 			set_blocking(true)
 	elif event.is_action_released("aim_block"):
 		if combat_class == GameState.CLASS_SNIPER:
 			set_aiming(false)
-		else:
+		elif combat_class == GameState.CLASS_SWORDSMAN:
 			set_blocking(false)
 	elif event.is_action_pressed("reload") and combat_class == GameState.CLASS_SNIPER:
 		_reload()
@@ -414,19 +401,19 @@ func _physics_process(delta: float) -> void:
 			if body in _attack_hits or not body.has_method("take_damage"):
 				continue
 			_attack_hits.append(body)
-			_apply_hit(body)
+			var hit_pos: Vector3 = body.global_position + Vector3(0, 1.3, 0)
+			body.take_damage(SWORD_DAMAGE, hit_pos, false, self)
+			hit_landed.emit(body, SWORD_DAMAGE, false)
 	elif hitbox.monitoring:
 		hitbox.monitoring = false
 
 
 # ------------------------------------------------------------------ swordsman
 func _try_attack() -> void:
-	if combat_class != GameState.CLASS_SWORDSMAN:
+	if combat_class == GameState.CLASS_SNIPER:
 		_shoot()
-	elif WeaponModels.is_thrown(weapon):
-		_throw()
-	elif _trait() == "storm":
-		_sweep()
+	elif combat_class == GameState.CLASS_ENGINEER:
+		_use_weapon()
 	else:
 		_swing()
 
@@ -436,7 +423,7 @@ func _swing() -> void:
 		return
 	_attacking = true
 	_attack_hits.clear()
-	var k := _swing_scale()
+	var k := 1.0
 	var now := _now()
 	_hitbox_opens_at = now + 0.08 * k
 	_hitbox_open_until = now + 0.26 * k
@@ -449,11 +436,8 @@ func _swing() -> void:
 	tw.tween_property(sword_pivot, "rotation", strike, 0.18 * k).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.tween_property(sword_pivot, "rotation", _rest_sword, 0.28 * k).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(func() -> void: _attacking = false)
-	# Lunge (daggers close the gap further).
-	velocity += -global_transform.basis.z * (4.0 if _trait() == "quickdraw" else 2.5)
-	_strike_count += 1
-	if _trait() == "dragonfire" and _strike_count % 3 == 0:
-		_flame_wave()
+	# Lunge.
+	velocity += -global_transform.basis.z * 2.5
 
 
 func set_blocking(on: bool) -> void:
@@ -461,7 +445,7 @@ func set_blocking(on: bool) -> void:
 		return
 	is_blocking = on
 	if on:
-		_parry_until = _now() + (0.45 if _trait() == "guardian" else 0.3)
+		_parry_until = _now() + 0.3
 	var tw := create_tween().set_parallel(true)
 	if on:
 		tw.tween_property(shield, "position", Vector3(-0.1, 1.2, -0.55), 0.12)
@@ -619,7 +603,7 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 			block_state.emit(true, true)
 			_flash_suit(Palette.CYAN)
 			return
-		amount *= 0.06 if _trait() == "guardian" else 0.12
+		amount *= 0.12
 		_flash_suit(Palette.CYAN)
 	else:
 		_flash_suit(Palette.RED)

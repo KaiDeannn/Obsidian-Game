@@ -1,4 +1,4 @@
-extends "res://tools/PremiumWeaponsPreview.gd"
+extends "res://tools/EngineerWeaponsPreview.gd"
 ## Preview of the opening cinematic and the battle system. Movie Maker:
 ##   godot --path . --write-movie preview/battle.avi --fixed-fps 30 res://tools/BattlePreview.tscn
 
@@ -47,7 +47,6 @@ func _run() -> void:
 	_cursor.position = Vector2(800, 500)
 	_overlay.add_child(_cursor)
 	_overlay.move_child(_cursor, _overlay.get_child_count() - 2)
-	GameState.equip_premium("dragons_breath")
 
 	# ---------------------------------------------------------------- opening cinematic
 	GameState.intro_played = false

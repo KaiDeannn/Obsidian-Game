@@ -443,10 +443,10 @@ func _build_home(page: VBoxContainer) -> void:
 	_app_icon(grid, "HOMES", "Property", UIKit.GOLD, "property")
 	_app_icon(grid, "STATS", "Progress", UIKit.ACCENT2, "stats")
 	var unread := Session.unread_total()
-	_app_icon(grid, "CALLS" if unread == 0 else "CALLS (%d)" % unread, "Players & contacts", UIKit.GREEN if unread == 0 else UIKit.AMBER, "contacts")
-	_app_icon(grid, "GARAGE", "Vehicles & valet", UIKit.AMBER, "garage")
-	_app_icon(grid, "WEAPONS", "Ninja arsenal", UIKit.rarity_color("Mythic"), "weapons")
-	_app_icon(grid, "BATTLES" if not Battle.has_pending() else "MATCH READY", "Solo, tournament, clan war", UIKit.RED if not Battle.has_pending() else UIKit.GREEN, "battles")
+	_app_icon(grid, "CALLS" if unread == 0 else "CALLS (%d)" % unread, "Contacts", UIKit.GREEN if unread == 0 else UIKit.AMBER, "contacts")
+	_app_icon(grid, "GARAGE", "Vehicles", UIKit.AMBER, "garage")
+	_app_icon(grid, "WEAPONS", "Arsenal", UIKit.rarity_color("Mythic"), "weapons")
+	_app_icon(grid, "BATTLES" if not Battle.has_pending() else "MATCH READY", "Matches", UIKit.RED if not Battle.has_pending() else UIKit.GREEN, "battles")
 	var tip := UIKit.wrapped("Tip: call Rook in CALLS and he will valet any car you own to wherever you are standing.", 12, UIKit.TEXT_DIM)
 	v.add_child(tip)
 
@@ -457,7 +457,10 @@ func _app_icon(grid: GridContainer, glyph: String, title: String, color: Color, 
 	b.custom_minimum_size = Vector2(104, 96)
 	b.pressed.connect(func() -> void: show_page(page_name))
 	col.add_child(b)
-	col.add_child(UIKit.label(title, 12, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER))
+	var caption := UIKit.label(title, 12, UIKit.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER)
+	caption.clip_text = true
+	caption.custom_minimum_size = Vector2(104, 0)
+	col.add_child(caption)
 	grid.add_child(col)
 
 
@@ -606,8 +609,7 @@ func _build_stats(page: VBoxContainer) -> void:
 	_stat_row(list, "Properties owned", str(GameState.owned_properties.size()), UIKit.GREEN)
 	_stat_row(list, "Vehicles owned", str(GameState.owned_vehicles.size()), UIKit.AMBER)
 	_stat_row(list, "Gear owned", str(GameState.owned_gear.size()), UIKit.TEXT)
-	var eqw := GameState.equipped_weapon()
-	_stat_row(list, "Equipped weapon", str(eqw["name"]) if not eqw.is_empty() else "Standard sword", UIKit.TEXT)
+	_stat_row(list, "Engineer weapon", str(GameState.equipped_weapon()["name"]), UIKit.TEXT)
 
 
 func _stat_row(list: VBoxContainer, title: String, value: String, color: Color) -> void:
@@ -1176,12 +1178,17 @@ func _build_garage(page: VBoxContainer) -> void:
 		_add_card(list, card)
 
 
-# ================================================================ WEAPONS (Ninja Legendary & Mythic)
+# ================================================================ WEAPONS (Engineer Legendary & Mythic)
 func _build_weapons(page: VBoxContainer) -> void:
-	_header(page, "Weapons", "Ninja Legendary & Mythic arsenal  -  pick what you carry")
+	_header(page, "Weapons", "Engineer  -  Legendary & Mythic")
 	var list := _scroll(page)
 	var eqw := GameState.equipped_weapon()
-	list.add_child(UIKit.wrapped("Equipped: %s. The Swordsman fights with it in the Spire (Q cycles weapons there); it rides on your back in the city." % (str(eqw["name"]) if not eqw.is_empty() else "standard sword"), 11, UIKit.TEXT_DIM))
+	var hero := _card(Color(UIKit.GREEN.r, UIKit.GREEN.g, UIKit.GREEN.b, 0.6))
+	hero.add_child(UIKit.label("EQUIPPED  -  3D MODEL", 11, UIKit.GREEN))
+	hero.add_child(_weapon_viewer(eqw))
+	hero.add_child(UIKit.label("%s  -  %s" % [eqw["name"], eqw["type"]], 15, UIKit.TEXT))
+	hero.add_child(UIKit.wrapped("Deploy as Engineer in the Spire to use it (Q switches weapons there). It rides on your back in the city.", 11, UIKit.TEXT_DIM))
+	_add_card(list, hero)
 	var chips := HFlowContainer.new()
 	chips.add_theme_constant_override("h_separation", 6)
 	for opt in CityData.PREMIUM_RARITIES:
@@ -1193,12 +1200,6 @@ func _build_weapons(page: VBoxContainer) -> void:
 			_rebuild("weapons"))
 		chips.add_child(b)
 	list.add_child(chips)
-	if GameState.equipped_premium != "":
-		var sword := UIKit.button("Use the standard sword", UIKit.TEXT_DIM, 12, 30)
-		sword.pressed.connect(func() -> void:
-			GameState.equip_premium("")
-			_rebuild("weapons"))
-		list.add_child(sword)
 	for w in CityData.PREMIUM_WEAPONS:
 		if _weapons_rarity != "All" and w["rarity"] != _weapons_rarity:
 			continue
@@ -1219,17 +1220,16 @@ func _build_weapons(page: VBoxContainer) -> void:
 			top.add_child(UIKit.tag("EQUIPPED", UIKit.GREEN, 10))
 		top.add_child(UIKit.tag(str(w["rarity"]).to_upper(), rcol, 10))
 		card.add_child(top)
+		card.add_child(UIKit.label(w["type"], 11, UIKit.TEXT_DIM))
 		var meta := UIKit.hbox(6)
 		meta.add_child(UIKit.tag(CityData.PREMIUM_CLASS.to_upper(), UIKit.TEXT_DIM, 10))
 		meta.add_child(UIKit.tag("DMG %d-%d" % [int(w["damage_min"]), int(w["damage_max"])], UIKit.RED, 10))
-		meta.add_child(UIKit.tag("THROWN" if WeaponModels.is_thrown(w) else "MELEE", UIKit.TEXT_DIM, 10))
+		meta.add_child(UIKit.tag(WeaponModels.kind(w).to_upper(), UIKit.TEXT_DIM, 10))
 		if w["limited"]:
 			meta.add_child(UIKit.tag("LIMITED RELEASE", UIKit.AMBER, 10))
 		card.add_child(meta)
 		card.add_child(UIKit.wrapped(w["desc"], 12))
-		card.add_child(UIKit.wrapped("Trait: %s" % w["trait_desc"], 11, rcol))
-		if w.has("note"):
-			card.add_child(UIKit.wrapped(w["note"], 11, UIKit.TEXT_DIM))
+		card.add_child(UIKit.wrapped(w["trait_desc"], 11, rcol))
 		var eq := UIKit.button("Equipped" if equipped else "Equip", UIKit.GREEN if equipped else rcol, 13, 32)
 		eq.disabled = equipped
 		eq.pressed.connect(func() -> void:
@@ -1238,6 +1238,23 @@ func _build_weapons(page: VBoxContainer) -> void:
 			_rebuild("weapons"))
 		card.add_child(eq)
 		_add_card(list, card)
+
+
+## The weapon's real in-game model turning slowly on a lit stage.
+func _weapon_viewer(w: Dictionary) -> SubViewportContainer:
+	var box := SubViewportContainer.new()
+	box.stretch = true
+	box.custom_minimum_size = Vector2(0, 190)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vp := SubViewport.new()
+	vp.own_world_3d = true
+	vp.msaa_3d = Viewport.MSAA_4X
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	box.add_child(vp)
+	var turntable := WeaponModels.stage(vp, w, PI * 0.5 if WeaponModels.is_launcher(w) else 0.0, 1.7)
+	var spin := turntable.create_tween().set_loops()
+	spin.tween_property(turntable, "rotation:y", TAU, 9.0).as_relative()
+	return box
 
 
 # ================================================================ BATTLES (match setup)

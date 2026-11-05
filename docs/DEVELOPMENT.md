@@ -20,7 +20,7 @@ scripts/spire/               arena builder, combat controller, player, AI (Train
 scripts/ui/                  HUDs, phone, mini-maps, store, rank modal
 scripts/shared/              Palette, UIKit, WeaponModels, CinematicData, BattleData
 audio/                       Rook's voice lines (macOS `say`), ringtone, ping, connect blip
-assets/premium/ninja/        weapon artwork from the Ninja Legendary & Mythic document
+assets/weapons/engineer/     Engineer weapon models (*.glb) and their card pictures (cards/)
 tools/                       SmokeTest, DemoDirector + preview directors, ExportMaps
 docs/                        this file
 ```
@@ -29,7 +29,7 @@ docs/                        this file
 
 | Autoload | Role |
 |---|---|
-| `GameState` | credits, points, class, properties, gear, vehicles + damage, equipped ninja weapon, `intro_played`, input-map safety net |
+| `GameState` | credits, points, class, properties, gear, vehicles + damage, equipped Engineer weapon, `intro_played`, input-map safety net |
 | `RankManager` | renown, rank ladder D→C→B→A→S (0/500/1500/3500/7000), `rank_advanced` |
 | `JobManager` | job board, active job, multi-stage objectives, payouts |
 | `RankModal` | pauses the game and shows the rank-up modal |
@@ -150,19 +150,45 @@ The tactical mini-map shows enemy dots only with line of sight (World-layer ray 
 
 ---
 
+## 4c. Engineer class and weapons
+
+**Files**: `scripts/city/CityData.gd` (`PREMIUM_WEAPONS`), `scripts/shared/WeaponModels.gd`, `scripts/spire/Explosive.gd`, `scripts/spire/SpirePlayer.gd` (engineer section), `tools/build_weapon_models.py`, `tools/RenderWeaponCards.gd`, `assets/weapons/engineer/` (`*.glb` models, `cards/*.jpg` pictures rendered from those models).
+
+- **Class**: `GameState.CLASS_ENGINEER`, key **3** on class select. LMB uses the equipped weapon, Q (`weapon_next`) cycles the catalogue live, RMB does nothing. The Swordsman and Sniper are unchanged.
+- **Models**: built in Blender 3.6 by `tools/build_weapon_models.py` (`blender --background --python tools/build_weapon_models.py -- assets/weapons/engineer [render_dir]`): lathed canister bodies, bevelled plates, tapered shells, levers, pull rings, emissive cores, Principled materials. One `.glb` per weapon id; after rebuilding run the editor import. `WeaponModels.build(w)` returns the held model, `build_munition(w)` the flying one.
+- **Data** per weapon: `kind` (`launcher` / `grenade` / `mine`), `trait`, `radius`, `cooldown`, and where relevant `speed`, `gravity`, `burst`, `fuse`, `freeze_time`, `trigger_radius`, `arm_time`, `max_active`.
+
+| weapon | rarity | damage | kind | effect (`trait`) |
+|---|---|---|---|---|
+| Oathkeeper | Mythic | 88–100 | launcher | arcing round, 5.5 m blast, slow (1.8 s) |
+| Sunblaze | Legendary | 42–50 | launcher | three-round burst, 2.8 m blasts |
+| Skyfall | Legendary | 75–85 | launcher | straight plasma bolt, 4.5 m splash |
+| Cinder-Canister | Legendary | 65–75 | grenade | 4.5 m blast, shortest cooldown |
+| Sol-Orb | Legendary | 78–90 | grenade | 45 % burst + burn zone ticking for 3.6 s (`burn`) |
+| Frost-Stasis | Legendary | 30–45 | grenade | enemies frozen 3.5 s (`freeze`) |
+| Scarlet-Fuse | Legendary | 72–82 | grenade | 2.5 s countdown, knockback + stagger (`concussion`) |
+| Void-Orb | Legendary | 70–80 | grenade | pulls enemies within 7 m inward, then crushes (`implosion`) |
+| Sunstone | Mythic | 90–115 | grenade | 8 m burst, white-out flash, 40 % self-damage inside 4 m (`shatter`) |
+| Hellfire-Mine | Legendary | 75–88 | mine | arms in 1 s, bursts on an enemy within 2.8 m, max three (`blast`) |
+
+- **`Explosive`**: one node per round / grenade / mine. Modes `impact` (ray-swept flight with gravity scale), `timed` (bounces, rests, countdown label) and `proximity` (static, armed after `arm_time`). `detonate()` applies the trait, spawns the blast sphere, shockwave ring and light, and emits `detonated`. Area damage falls off to 50 % at the rim. Enemies gained `freeze(seconds)` / `is_frozen()`; frozen or staggered ranged fighters neither move nor fire.
+- **Adding a weapon**: one entry in `PREMIUM_WEAPONS`, one build function in `tools/build_weapon_models.py`, then run `tools/RenderWeaponCards.tscn` to render its card picture (`WeaponModels.stage()` is the shared lit stage, also used by the phone's 3D viewer). A new effect is one more `match` arm in `Explosive.detonate()`.
+
+---
+
 ## 5. Other systems (reference)
 
-- **Phone** (`PhoneUI.gd`): Home, Jobs, Property, Stats, Calls (contacts, messages, call overlay with ringtone/timer/mic meter; Rook's valet bar after his recorded greeting), Garage (vehicles, condition, dealership), Weapons (ninja arsenal, Equip), Battles.
+- **Phone** (`PhoneUI.gd`): Home, Jobs, Property, Stats, Calls (contacts, messages, call overlay with ringtone/timer/mic meter; Rook's valet bar after his recorded greeting), Garage (vehicles, condition, dealership), Weapons (Engineer arsenal, Equip), Battles.
 - **Session** (`Session.gd`): texts and voice over RPC, simulated roster offline; attach any `MultiplayerPeer` for real players.
 - **Valet** (`Valet.gd`, `ValetDriver.gd`, `RoadNetwork.gd`): Request spawns the car at a road node ≥45 m away and drives it along A* road paths to the kerb beside the player; Return despawns; Fix queues repairs and Rook calls back.
-- **Ninja weapons** (`CityData.PREMIUM_WEAPONS`, `WeaponModels.gd`, `ThrownBlade.gd`, traits in `SpirePlayer`): all twelve available; Q cycles them in the Spire; each has a damage range and a trait (faster strikes, heal on takedown, guardian block, sweep, flame wave, reach + crits, pull + stagger, thrown pierce / burn / return / ricochet).
+- **Engineer weapons** (`CityData.PREMIUM_WEAPONS`, `WeaponModels.gd`, `Explosive.gd`, `SpirePlayer` engineer section, `tools/build_weapon_models.py`): the ten Legendary & Mythic weapons from the Engineer document. See section 4c.
 - **Progression**: jobs and takedowns pay Renown and Points; crossing 500 Renown shows the Rank C modal and unlocks Mythic / Legendary gear in the Spire armory (two-step purchase rule).
 
 ---
 
 ## 6. Testing and previews
 
-- `tools/SmokeTest.tscn` — headless, 145 checks across progression, city, comms + valet, ninja weapons, cinematic system, battle setup, matches in the Spire (solo win and restart, ranged AI fire, tournament elimination, clan war), Spire combat, rank modal. Run after every change. Timing-sensitive sections wait on conditions (`_wait_until`) rather than fixed delays where possible.
+- `tools/SmokeTest.tscn` — headless, 145 checks across progression, city, comms + valet, Engineer weapons, cinematic system, battle setup, matches in the Spire (solo win and restart, ranged AI fire, tournament elimination, clan war), Spire combat, rank modal. Run after every change. Timing-sensitive sections wait on conditions (`_wait_until`) rather than fixed delays where possible.
 - Preview directors (`tools/DemoDirector.gd`, `CommsValetPreview.gd`, `PremiumWeaponsPreview.gd`) drive the real game for Movie Maker recordings: `godot --path . --write-movie preview/x.avi --fixed-fps 30 res://tools/X.tscn`, then encode with ffmpeg (CRF 17–23 keeps a two-minute clip under 20 MB).
 - GDScript rules of thumb in this codebase: `:=` cannot infer from autoload members, Dictionary values, ternaries or untyped loop variables — type them explicitly; `match` is a reserved word (the combat controller uses `fight` for the match dictionary); new `class_name` scripts need an editor import (`--import`) before headless runs see them.
 
@@ -172,6 +198,7 @@ The tactical mini-map shows enemy dots only with line of sight (World-layer ray 
 
 - **2026-10-21** — vertical slice: city (driving, phone with Jobs / Property / Stats, gate), Spire (class combat, LOS mini-map, rank modal, armory).
 - **2026-10-29** — player-to-player comms (texts, voice calls) and Rook's valet (Request / Fix / Return, driving NPC); flat theme.
-- **2026-11-03** — the twelve Ninja Legendary & Mythic weapons as functional weapons with traits; Weapons app; Q cycling.
+- **2026-11-03** — first weapon set (ninja blades), Weapons app, Q cycling (replaced on 2026-11-06).
+- **2026-11-06** — the ninja weapon set was removed and replaced by the ten Engineer Legendary & Mythic weapons: Blender-built models, a playable Engineer class, launcher / grenade / mine behaviour with six detonation effects.
 - **2026-11-05** — city visual overhaul: sunlit modern metropolis (PBR materials, glass towers with podiums and terraces, greenery and water, dual carriageways with medians and crossings, traffic, pedestrians, daylight lighting and post-processing); lane keeping for NPC drivers.
 - **2026-11-04** — scalable cinematic system with the opening fly-over; battle system from the design document (Solo / Tournament / Clan War, Golden Rule, map rule, portal flow, three arenas, six AI classes, vision dots, results and rewards); this document.
